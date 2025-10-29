@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库表关系图</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+            border-left: 4px solid #4CAF50;
+            padding-left: 10px;
+        }
+        .mermaid {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+        
+        .mermaid svg {
+            position: relative;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
+        .tip {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            border-left: 4px solid #FF9800;
+        }
+        .legend {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+            border: 1px solid #e0e0e0;
+        }
+        .legend h3 {
+            margin-top: 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI营养师小程序 - 数据库表关系图</h1>
+        
+        <div class="info">
+            <strong>📌 说明：</strong>这是一个交互式数据库关系图，展示了所有表之间的关联关系。图表会自动渲染，如果看不到图表，请确保网络连接正常。
+        </div>
+
+        <div class="legend">
+            <h3>🎨 优先级图例</h3>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin: 15px 0;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 20px; height: 20px; background: #4CAF50; border-radius: 4px; border: 2px solid #2E7D32;"></div>
+                    <span><strong>P0</strong> - 最高优先级（必须，核心功能）</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 20px; height: 20px; background: #FF9800; border-radius: 4px; border: 2px solid #F57C00;"></div>
+                    <span><strong>P1</strong> - 中等优先级（重要功能）</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 20px; height: 20px; background: #9E9E9E; border-radius: 4px; border: 2px solid #616161;"></div>
+                    <span><strong>P2</strong> - 低优先级（可选功能）</span>
+                </div>
+            </div>
+        </div>
+
+        <h2>一、完整数据库关系图（带优先级标注）</h2>
+        <div class="mermaid">
+erDiagram
+    %% P0优先级表（绿色）- 最高优先级，核心功能
+    user_core {
+        string userId PK "全局用户ID [P0]"
+        string wechatOpenId UK "微信OpenId"
+        string nickname "昵称"
+        string phoneEncrypted "加密手机号"
+        string phoneMasked "脱敏手机号"
+    }
+    
+    user_goals {
+        string userId PK "用户ID（联合主键，关联 user_core.userId）"
+        int version PK "版本号（联合主键）"
+        number targetWeightKg "目标体重"
+        int dailyCaloriesKcal "日目标卡路里"
+    }
+    
+    user_subscriptions {
+        string subscriptionId PK "订阅ID [P0]"
+        string userId FK "用户ID"
+        string productPlanId FK "产品方案ID"
+        string serviceStatus "服务状态"
+        bool isCurrent "是否当前订阅"
+    }
+    
+    nutritionists {
+        string nutritionistId PK "营养师ID [P0]"
+        string displayName "显示名称"
+        string wechatOpenId "微信OpenId"
+    }
+    
+    meals {
+        string mealId PK "餐食记录ID [P0]"
+        string userId FK "用户ID"
+        timestamp mealTimeUtc "进餐时间"
+        int caloriesKcal "总热量"
+        json nutritionDetails "完整营养素"
+        number antiScore "抗炎总分"
+    }
+    
+    weight {
+        string weightId PK "体重记录ID [P0]"
+        string userId FK "用户ID"
+        timestamp measuredAtUtc "测量时间"
+        number weightKg "体重"
+    }
+    
+    exercise {
+        string exerciseId PK "运动记录ID [P0]"
+        string userId FK "用户ID"
+        timestamp activityAtUtc "运动时间"
+        int caloriesKcal "消耗热量"
+    }
+    
+    user_assessments {
+        string assessmentId PK "评估记录ID [P0]"
+        string userId FK "用户ID"
+        int version "评估版本号"
+        number emotionalScore "情绪因子得分"
+    }
+    
+    %% P1优先级表（橙色）- 中等优先级
+    user_preferences {
+        string userId PK "用户ID [P1]"
+        string personality "AI语气"
+        json reminders "提醒设置"
+    }
+    
+    water {
+        string waterId PK "喝水记录ID [P1]"
+        string userId FK "用户ID"
+        timestamp drinkAtUtc "饮水时间"
+        int amountMl "饮水量"
+    }
+    
+    reports {
+        string reportId PK "报告ID [P1]"
+        string userId FK "用户ID"
+        string reportType "报告类型"
+        json metricsSnapshot "指标快照"
+    }
+    
+    conversation {
+        string conversationId PK "对话ID [P1]"
+        string userId FK "用户ID"
+        timestamp occurredAtUtc "发生时间"
+        string intent "意图"
+    }
+    
+    medical_reports {
+        string reportId PK "报告ID [P1]"
+        string userId FK "用户ID"
+        timestamp reportAtUtc "报告日期"
+        string fileUrl "报告文件URL"
+    }
+    
+    %% P2优先级表（灰色）- 低优先级
+    product_plans {
+        string productPlanId PK "产品方案ID [P2]"
+        string productPlanName "方案名称"
+        string productPlanTier "方案层级"
+        number basePrice "基础价格"
+    }
+    
+    user_service_assignment {
+        string userId PK "用户ID [P2]"
+        string nutritionistId FK "营养师ID"
+        string assignmentStatus "分配状态"
+    }
+    
+    user_service_assignment_history {
+        string userId FK "用户ID"
+        string fromNutritionistId FK "原营养师ID"
+        string toNutritionistId FK "新营养师ID"
+        timestamp changedAtUtc PK "变更时间 [P2]"
+    }
+    
+    payments {
+        string paymentId PK "支付ID [P2]"
+        string userId FK "用户ID"
+        string subscriptionId FK "订阅ID"
+        number amount "金额"
+        string status "支付状态"
+    }
+    
+    refunds {
+        string refundId PK "退款ID [P2]"
+        string paymentId FK "支付ID"
+        number amount "退款金额"
+        string status "退款状态"
+    }
+    
+    %% 关系定义
+    user_core ||--o{ user_goals : "用户可以有多个目标版本"
+    user_core ||--o| user_preferences : "用户可选偏好设置"
+    user_core ||--o{ user_subscriptions : "用户可以有多个订阅记录"
+    user_core ||--o| user_service_assignment : "用户可选当前分配"
+    user_core ||--o{ user_service_assignment_history : "用户可以有多个分配历史"
+    user_core ||--o{ meals : "用户可以有多个餐食记录"
+    user_core ||--o{ weight : "用户可以有多个体重记录"
+    user_core ||--o{ exercise : "用户可以有多个运动记录"
+    user_core ||--o{ user_assessments : "用户可以有多个测评"
+    user_core ||--o{ water : "用户可以有多个喝水记录"
+    user_core ||--o{ reports : "用户可以有多个报告"
+    user_core ||--o{ medical_reports : "用户可以有多个体检报告"
+    user_core ||--o{ conversation : "用户可以有多个对话"
+    
+    product_plans o{--o| user_subscriptions : "产品方案可选关联订阅"
+    
+    nutritionists ||--o{ user_service_assignment : "营养师可以分配多个用户"
+    nutritionists ||--o{ user_service_assignment_history : "作为原营养师"
+    nutritionists ||--o{ user_service_assignment_history : "作为新营养师"
+    
+    user_subscriptions o{--o| payments : "订阅可选关联支付记录"
+    
+    payments ||--o{ refunds : "支付可以有多个退款记录"
+        </div>
+
+        <h2>二、关系说明</h2>
+        
+        <h3>用户域（User Domain）</h3>
+        <ul>
+            <li><strong>user_core</strong>：用户主档（已合并user_contacts），是所有业务事实表的中心</li>
+            <li><strong>user_preferences</strong>：用户偏好设置（0或1，用户可选）</li>
+            <li><strong>user_goals</strong>：用户目标（1:N关系，支持版本化）</li>
+        </ul>
+
+        <h3>服务域（Service Domain）</h3>
+        <ul>
+            <li><strong>product_plans</strong>：产品方案模板（不直接关联用户，可被订阅引用）</li>
+            <li><strong>user_subscriptions</strong>：订阅/服务（已合并subscriptions和user_service，计划引用可空）</li>
+            <li><strong>user_service_assignment</strong>：营养师分配（0或1，当前分配，可空）</li>
+            <li><strong>user_service_assignment_history</strong>：分配历史（1:N关系）</li>
+            <li><strong>nutritionists</strong>：营养师信息</li>
+        </ul>
+
+        <h3>业务事实域（Business Facts Domain）</h3>
+        <ul>
+            <li>所有业务事实表都与 <strong>user_core</strong> 一对多关系</li>
+            <li><strong>meals</strong>：餐食记录（已合并meals_anti_score，新增nutritionDetails）</li>
+            <li><strong>weight</strong>：体重记录</li>
+            <li><strong>exercise</strong>：运动记录</li>
+            <li><strong>user_assessments</strong>：用户测评（画像/因子得分，支持版本化）</li>
+            <li><strong>water</strong>：喝水记录</li>
+            <li><strong>reports</strong>：报告（汇总以上数据）</li>
+            <li><strong>medical_reports</strong>：体检报告</li>
+            <li><strong>conversation</strong>：对话记录</li>
+        </ul>
+
+        <h3>财务域（Finance Domain）</h3>
+        <ul>
+            <li><strong>payments</strong>：支付记录（订阅关联可选）</li>
+            <li><strong>refunds</strong>：退款记录（关联payments）</li>
+        </ul>
+
+        <div class="tip">
+            <strong>💡 提示：</strong>
+            <ul>
+                <li>图表可以通过鼠标拖拽调整位置</li>
+                <li>可以缩放查看细节</li>
+                <li>如果图表没有显示，请检查网络连接或刷新页面</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            },
+            er: {
+                fontSize: 12
+            }
+        });
+        
+        // 域的定义
+        const domains = {
+            '用户域': {
+                tables: ['user_core', 'user_goals', 'user_preferences'],
+                color: 'rgba(200, 230, 201, 0.2)',  // 浅绿色背景
+                borderColor: '#81C784',  // 绿色边框
+                textColor: '#2E7D32'
+            },
+            '服务域': {
+                tables: ['product_plans', 'user_subscriptions', 'user_service_assignment', 
+                        'user_service_assignment_history', 'nutritionists'],
+                color: 'rgba(187, 222, 251, 0.2)',  // 浅蓝色背景
+                borderColor: '#64B5F6',  // 蓝色边框
+                textColor: '#1976D2'
+            },
+            '业务事实域': {
+                tables: ['meals', 'weight', 'exercise', 'user_assessments', 'water', 'reports', 'conversation', 'medical_reports'],
+                color: 'rgba(255, 224, 178, 0.2)',  // 浅橙色背景
+                borderColor: '#FFB74D',  // 橙色边框
+                textColor: '#F57C00'
+            },
+            '财务域': {
+                tables: ['payments', 'refunds'],
+                color: 'rgba(224, 224, 224, 0.2)',  // 浅灰色背景
+                borderColor: '#9E9E9E',  // 灰色边框
+                textColor: '#616161'
+            }
+        };
+        
+        // 设置表颜色的函数
+        function setTableColors() {
+            const svg = document.querySelector('.mermaid svg');
+            if (!svg) {
+                // 如果SVG还没渲染，等待一下再试
+                setTimeout(setTableColors, 500);
+                return;
+            }
+            
+            // P0优先级表（绿色）- 最高优先级，核心功能
+            const p0Tables = ['user_core', 'user_goals', 'user_subscriptions', 
+                             'nutritionists', 'meals', 'weight', 'exercise', 'user_assessments'];
+            
+            // P1优先级表（橙色）- 中等优先级，重要功能
+            const p1Tables = ['user_preferences', 'water', 'reports', 'conversation', 'medical_reports'];
+            
+            // P2优先级表（灰色）- 低优先级，可选功能
+            // product_plans: 目前只有一个产品方案，优先级调低
+            // user_service_assignment, user_service_assignment_history: 营养师暂不改派，优先级调低
+            const p2Tables = ['product_plans', 'user_service_assignment', 'user_service_assignment_history', 
+                             'payments', 'refunds'];
+            
+            // 更可靠的方法：查找所有rect元素，然后通过查找附近的文本来确定表名
+            function findAndColorTable(tableName, fillColor, strokeColor) {
+                // 方法1：通过查找包含表名的文本元素，然后找到最近的rect
+                const allTexts = svg.querySelectorAll('text');
+                allTexts.forEach(textEl => {
+                    const textContent = textEl.textContent || '';
+                    // 检查文本是否包含表名（作为第一个单词）
+                    if (textContent.trim().startsWith(tableName)) {
+                        // 找到包含这个文本的组
+                        let group = textEl.closest('g');
+                        if (group) {
+                            // 在组内查找所有rect元素
+                            const rects = group.querySelectorAll('rect');
+                            rects.forEach(rect => {
+                                const width = parseFloat(rect.getAttribute('width') || 0);
+                                const height = parseFloat(rect.getAttribute('height') || 0);
+                                // 表的主矩形通常较大（宽度>80，高度>40）
+                                if (width > 80 && height > 40) {
+                                    rect.setAttribute('fill', fillColor);
+                                    rect.setAttribute('stroke', strokeColor);
+                                    rect.setAttribute('stroke-width', '2');
+                                    rect.style.fill = fillColor;
+                                    rect.style.stroke = strokeColor;
+                                    rect.style.strokeWidth = '2px';
+                                }
+                            });
+                            
+                            // 也在父组中查找
+                            let parentGroup = group.parentElement;
+                            if (parentGroup && parentGroup.tagName === 'g') {
+                                const parentRects = parentGroup.querySelectorAll('rect');
+                                parentRects.forEach(rect => {
+                                    const width = parseFloat(rect.getAttribute('width') || 0);
+                                    if (width > 80) {
+                                        rect.setAttribute('fill', fillColor);
+                                        rect.setAttribute('stroke', strokeColor);
+                                        rect.setAttribute('stroke-width', '2');
+                                        rect.style.fill = fillColor;
+                                        rect.style.stroke = strokeColor;
+                                        rect.style.strokeWidth = '2px';
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+                
+                // 方法2：通过ID查找（Mermaid会为每个实体生成ID）
+                const idPatterns = [
+                    `[id*="${tableName}"]`,
+                    `[id*="${tableName.replace(/_/g, '-')}"]`,
+                    `[id*="${tableName.replace(/_/g, '')}"]`
+                ];
+                
+                idPatterns.forEach(pattern => {
+                    try {
+                        const elements = svg.querySelectorAll(pattern);
+                        elements.forEach(el => {
+                            const rects = el.querySelectorAll('rect');
+                            rects.forEach(rect => {
+                                const width = parseFloat(rect.getAttribute('width') || 0);
+                                if (width > 80) {
+                                    rect.setAttribute('fill', fillColor);
+                                    rect.setAttribute('stroke', strokeColor);
+                                    rect.setAttribute('stroke-width', '2');
+                                    rect.style.fill = fillColor;
+                                    rect.style.stroke = strokeColor;
+                                    rect.style.strokeWidth = '2px';
+                                }
+                            });
+                            
+                            // 如果元素本身就是rect
+                            if (el.tagName === 'rect') {
+                                const width = parseFloat(el.getAttribute('width') || 0);
+                                if (width > 80) {
+                                    el.setAttribute('fill', fillColor);
+                                    el.setAttribute('stroke', strokeColor);
+                                    el.setAttribute('stroke-width', '2');
+                                    el.style.fill = fillColor;
+                                    el.style.stroke = strokeColor;
+                                    el.style.strokeWidth = '2px';
+                                }
+                            }
+                        });
+                    } catch (e) {
+                        // 忽略选择器错误
+                    }
+                });
+            }
+            
+            // 设置P0优先级表（绿色）
+            p0Tables.forEach(tableName => {
+                findAndColorTable(tableName, '#C8E6C9', '#4CAF50');
+            });
+            
+            // 设置P1优先级表（橙色）
+            p1Tables.forEach(tableName => {
+                findAndColorTable(tableName, '#FFE0B2', '#FF9800');
+            });
+            
+            // 设置P2优先级表（灰色）
+            p2Tables.forEach(tableName => {
+                findAndColorTable(tableName, '#E0E0E0', '#9E9E9E');
+            });
+        }
+        
+        // 绘制域背景框的函数
+        function drawDomainBoxes() {
+            const svg = document.querySelector('.mermaid svg');
+            if (!svg) {
+                setTimeout(drawDomainBoxes, 500);
+                return;
+            }
+            
+            // 删除旧的域框
+            const oldDomainGroup = svg.querySelector('#domain-boxes');
+            if (oldDomainGroup) {
+                oldDomainGroup.remove();
+            }
+            
+            // 创建域分组容器，确保在最底层
+            const domainGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            domainGroup.setAttribute('id', 'domain-boxes');
+            domainGroup.setAttribute('style', 'pointer-events: none;');
+            
+            // 获取SVG的所有子元素
+            const svgChildren = Array.from(svg.children);
+            // 找到第一个非defs的元素位置插入
+            let insertIndex = 0;
+            for (let i = 0; i < svgChildren.length; i++) {
+                if (svgChildren[i].tagName !== 'defs' && svgChildren[i].id !== 'domain-boxes') {
+                    insertIndex = i;
+                    break;
+                }
+            }
+            svg.insertBefore(domainGroup, svgChildren[insertIndex] || null);
+            
+            // 为每个域绘制背景框
+            Object.keys(domains).forEach(domainName => {
+                const domain = domains[domainName];
+                const tablePositions = [];
+                
+                // 找到域中所有表的位置 - 使用更全面的方法
+                domain.tables.forEach(tableName => {
+                    // 方法1：通过文本查找表名（表的第一个文本通常是表名）
+                    const allTexts = svg.querySelectorAll('text');
+                    allTexts.forEach(textEl => {
+                        const textContent = (textEl.textContent || '').trim();
+                        // 检查是否以表名开头，或者包含表名
+                        if (textContent.startsWith(tableName) || textContent === tableName) {
+                            let group = textEl.closest('g');
+                            // 向上查找包含rect的组
+                            let maxDepth = 5;
+                            while (group && maxDepth > 0) {
+                                const rects = group.querySelectorAll('rect');
+                                if (rects.length > 0) {
+                                    try {
+                                        const bbox = group.getBBox();
+                                        if (bbox.width > 50 && bbox.height > 30) {
+                                            tablePositions.push({
+                                                x: bbox.x,
+                                                y: bbox.y,
+                                                width: bbox.width,
+                                                height: bbox.height
+                                            });
+                                            break;
+                                        }
+                                    } catch (e) {
+                                        // 忽略getBBox错误
+                                    }
+                                }
+                                group = group.parentElement;
+                                maxDepth--;
+                            }
+                        }
+                    });
+                    
+                    // 方法2：通过ID查找（Mermaid生成的ID）
+                    const idVariations = [
+                        tableName,
+                        tableName.replace(/_/g, '-'),
+                        tableName.replace(/_/g, ''),
+                        `er-${tableName}`,
+                        `er-${tableName.replace(/_/g, '-')}`
+                    ];
+                    
+                    idVariations.forEach(idVariant => {
+                        try {
+                            // 直接查找ID
+                            const elementById = svg.querySelector(`#${idVariant}`);
+                            if (elementById && elementById.tagName === 'g') {
+                                try {
+                                    const bbox = elementById.getBBox();
+                                    if (bbox.width > 50 && bbox.height > 30) {
+                                        tablePositions.push({
+                                            x: bbox.x,
+                                            y: bbox.y,
+                                            width: bbox.width,
+                                            height: bbox.height
+                                        });
+                                    }
+                                } catch (e) {}
+                            }
+                            
+                            // 通过ID包含查找
+                            const elements = svg.querySelectorAll(`[id*="${idVariant}"]`);
+                            elements.forEach(el => {
+                                if (el.tagName === 'g') {
+                                    try {
+                                        const bbox = el.getBBox();
+                                        if (bbox.width > 50 && bbox.height > 30) {
+                                            // 检查是否已存在
+                                            const exists = tablePositions.some(p => 
+                                                Math.abs(p.x - bbox.x) < 5 && Math.abs(p.y - bbox.y) < 5
+                                            );
+                                            if (!exists) {
+                                                tablePositions.push({
+                                                    x: bbox.x,
+                                                    y: bbox.y,
+                                                    width: bbox.width,
+                                                    height: bbox.height
+                                                });
+                                            }
+                                        }
+                                    } catch (e) {}
+                                }
+                            });
+                        } catch (e) {
+                            // 忽略选择器错误
+                        }
+                    });
+                    
+                    // 方法3：通过查找包含表名的所有g元素，然后找到最大的rect
+                    const allGroups = svg.querySelectorAll('g');
+                    allGroups.forEach(group => {
+                        const texts = group.querySelectorAll('text');
+                        let foundTableName = false;
+                        texts.forEach(textEl => {
+                            const textContent = (textEl.textContent || '').trim();
+                            if (textContent.startsWith(tableName) || textContent === tableName) {
+                                foundTableName = true;
+                            }
+                        });
+                        
+                        if (foundTableName) {
+                            const rects = group.querySelectorAll('rect');
+                            let largestRect = null;
+                            let maxArea = 0;
+                            rects.forEach(rect => {
+                                const width = parseFloat(rect.getAttribute('width') || 0);
+                                const height = parseFloat(rect.getAttribute('height') || 0);
+                                const area = width * height;
+                                if (area > maxArea && width > 50 && height > 30) {
+                                    maxArea = area;
+                                    largestRect = rect;
+                                }
+                            });
+                            
+                            if (largestRect) {
+                                try {
+                                    const bbox = group.getBBox();
+                                    if (bbox.width > 50 && bbox.height > 30) {
+                                        const exists = tablePositions.some(p => 
+                                            Math.abs(p.x - bbox.x) < 10 && Math.abs(p.y - bbox.y) < 10
+                                        );
+                                        if (!exists) {
+                                            tablePositions.push({
+                                                x: bbox.x,
+                                                y: bbox.y,
+                                                width: bbox.width,
+                                                height: bbox.height
+                                            });
+                                        }
+                                    }
+                                } catch (e) {}
+                            }
+                        }
+                    });
+                });
+                
+                // 去重表位置（避免重复）
+                const uniquePositions = [];
+                tablePositions.forEach(pos => {
+                    const isDuplicate = uniquePositions.some(existing => 
+                        Math.abs(existing.x - pos.x) < 10 && 
+                        Math.abs(existing.y - pos.y) < 10 &&
+                        Math.abs(existing.width - pos.width) < 10 &&
+                        Math.abs(existing.height - pos.height) < 10
+                    );
+                    if (!isDuplicate) {
+                        uniquePositions.push(pos);
+                    }
+                });
+                
+                // 如果有表，计算边界框
+                if (uniquePositions.length > 0) {
+                    let minX = Math.min(...uniquePositions.map(p => p.x));
+                    let minY = Math.min(...uniquePositions.map(p => p.y));
+                    let maxX = Math.max(...uniquePositions.map(p => p.x + p.width));
+                    let maxY = Math.max(...uniquePositions.map(p => p.y + p.height));
+                    
+                    // 添加边距
+                    const padding = 30;
+                    minX -= padding;
+                    minY -= padding;
+                    maxX += padding;
+                    maxY += padding;
+                    
+                    // 确保坐标有效
+                    if (minX >= 0 && minY >= 0 && maxX > minX && maxY > minY) {
+                        // 绘制背景框
+                        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        rect.setAttribute('x', minX);
+                        rect.setAttribute('y', minY);
+                        rect.setAttribute('width', maxX - minX);
+                        rect.setAttribute('height', maxY - minY);
+                        rect.setAttribute('fill', domain.color);
+                        rect.setAttribute('stroke', domain.borderColor);
+                        rect.setAttribute('stroke-width', '3');
+                        rect.setAttribute('stroke-dasharray', '10,5');
+                        rect.setAttribute('rx', '10');
+                        rect.setAttribute('opacity', '1');
+                        rect.style.pointerEvents = 'none';
+                        rect.style.fillOpacity = '0.15';
+                        domainGroup.appendChild(rect);
+                        
+                        // 添加域标签背景
+                        const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        const labelWidth = domainName.length * 14 + 25;
+                        labelBg.setAttribute('x', minX + 8);
+                        labelBg.setAttribute('y', minY + 8);
+                        labelBg.setAttribute('width', labelWidth);
+                        labelBg.setAttribute('height', 28);
+                        labelBg.setAttribute('fill', 'white');
+                        labelBg.setAttribute('opacity', '0.95');
+                        labelBg.setAttribute('rx', '5');
+                        labelBg.setAttribute('stroke', domain.borderColor);
+                        labelBg.setAttribute('stroke-width', '2.5');
+                        labelBg.style.pointerEvents = 'none';
+                        domainGroup.appendChild(labelBg);
+                        
+                        // 添加域标签文本
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('x', minX + 20);
+                        text.setAttribute('y', minY + 27);
+                        text.setAttribute('fill', domain.textColor);
+                        text.setAttribute('font-size', '15');
+                        text.setAttribute('font-weight', 'bold');
+                        text.setAttribute('font-family', 'Arial, "Microsoft YaHei", sans-serif');
+                        text.textContent = domainName;
+                        text.style.pointerEvents = 'none';
+                        domainGroup.appendChild(text);
+                    }
+                }
+            });
+            
+            // 确保域框在底层：移动到最前面
+            svg.insertBefore(domainGroup, svg.firstChild);
+        }
+        
+        // 等待图表渲染完成后设置颜色
+        function initializeDiagram() {
+            setTableColors();
+            // 域框绘制暂时禁用，因为框线显示有问题
+            // setTimeout(() => {
+            //     drawDomainBoxes();
+            //     setTimeout(drawDomainBoxes, 1000);
+            // }, 1000);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // 多次尝试，确保图表已渲染
+            setTimeout(initializeDiagram, 1500);
+            setTimeout(initializeDiagram, 2500);
+            setTimeout(initializeDiagram, 3500);
+            setTimeout(initializeDiagram, 4500);
+            setTimeout(initializeDiagram, 5500);
+            
+            // 监听Mermaid渲染完成事件
+            if (window.mermaid) {
+                const originalRender = mermaid.render;
+                mermaid.render = function(...args) {
+                    const result = originalRender.apply(this, args);
+                    setTimeout(initializeDiagram, 1500);
+                    return result;
+                };
+            }
+        });
+        
+        // 使用MutationObserver监听DOM变化
+        if (typeof MutationObserver !== 'undefined') {
+            const observer = new MutationObserver(function(mutations) {
+                const svg = document.querySelector('.mermaid svg');
+                if (svg && svg.querySelectorAll('rect').length > 10) {
+                    setTimeout(initializeDiagram, 1000);
+                    observer.disconnect();
+                }
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        }
+    </script>
+    
+    <style>
+        /* CSS样式作为备用，主要通过JavaScript动态设置 */
+        .mermaid svg rect[data-priority="P0"] {
+            fill: #C8E6C9 !important;
+            stroke: #4CAF50 !important;
+            stroke-width: 2px !important;
+        }
+        
+        .mermaid svg rect[data-priority="P1"] {
+            fill: #FFE0B2 !important;
+            stroke: #FF9800 !important;
+            stroke-width: 2px !important;
+        }
+        
+        .mermaid svg rect[data-priority="P2"] {
+            fill: #E0E0E0 !important;
+            stroke: #9E9E9E !important;
+            stroke-width: 2px !important;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# 忽略临时文件和备份文件
+*.zip
+*.tar.gz
+*.excalidraw
+*.pdf
+*.xlsx
+*.csv
+*.pyc
+__pycache__/
+.DS_Store
+*.png
+!数据库表关系图.html
