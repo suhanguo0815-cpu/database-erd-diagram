@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 / 注册</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F2F2F2; }
+    .status-bar { height: 44px; background: #181818; color: white; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-size:14px; font-weight:600; }
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 1px solid #E5E5E7; }
+    .back-btn { transition: all 0.2s ease; }
+    .back-btn:active { transform: scale(0.95); }
+    .input-field { background: #F2F2F2; border: 1px solid #E5E5E7; border-radius: 12px; padding: 12px 16px; font-size: 16px; transition: all 0.2s ease; width: 100%; }
+    .input-field:focus { outline: none; border-color: #A1DB67; background: #fff; box-shadow: 0 0 0 3px rgba(195,235,46,0.12); }
+    .primary-btn { background:#A1DB67; color:#111827; border-radius: 12px; font-weight:600; transition: all 0.2s ease; }
+    .primary-btn:active { transform: scale(0.98); }
+    .inline-btn { white-space: nowrap; }
+  </style>
+  <script>
+    let otpTimer = null;
+    let otpRemain = 0;
+
+    function startOtpCountdown(seconds) {
+      const btn = document.getElementById('get-code-btn');
+      otpRemain = seconds;
+      btn.disabled = true;
+      btn.textContent = `${otpRemain}s 后重试`;
+      if (otpTimer) clearInterval(otpTimer);
+      otpTimer = setInterval(() => {
+        otpRemain -= 1;
+        if (otpRemain <= 0) {
+          clearInterval(otpTimer);
+          otpTimer = null;
+          btn.disabled = false;
+          btn.textContent = '获取验证码';
+        } else {
+          btn.textContent = `${otpRemain}s 后重试`;
+        }
+      }, 1000);
+    }
+
+    function sendOtp() {
+      const phone = document.getElementById('quick-phone').value.trim();
+      if (!phone) { alert('请输入手机号'); return; }
+      if (otpRemain > 0) return;
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      const payload = { code, expireAt: Date.now() + 5 * 60 * 1000 };
+      try { localStorage.setItem(`otp:${phone}`, JSON.stringify(payload)); } catch (e) {}
+      alert(`验证码已发送（演示）：${code}`);
+      startOtpCountdown(60);
+    }
+
+    function submitOtp() {
+      const phone = document.getElementById('quick-phone').value.trim();
+      const code = document.getElementById('quick-code').value.trim();
+      if (!phone) { alert('请输入手机号'); return; }
+      if (!code) { alert('请输入验证码'); return; }
+      try {
+        const raw = localStorage.getItem(`otp:${phone}`);
+        if (!raw) { alert('请先获取验证码'); return; }
+        const data = JSON.parse(raw);
+        if (Date.now() > Number(data.expireAt)) { alert('验证码已过期'); return; }
+        if (code !== String(data.code)) { alert('验证码错误'); return; }
+        const accRaw = localStorage.getItem('accountProfile');
+        const profile = accRaw ? JSON.parse(accRaw) : {};
+        profile.phone = phone;
+        if (!profile.nickname || profile.nickname.trim() === '') profile.nickname = '手机用户';
+        localStorage.setItem('accountProfile', JSON.stringify(profile));
+        localStorage.setItem('isLoggedIn', 'true');
+        try {
+          if (window.top !== window && window.parent && window.parent.localStorage) {
+            window.parent.localStorage.setItem('isLoggedIn', 'true');
+            window.parent.localStorage.setItem('accountProfile', JSON.stringify(profile));
+          }
+        } catch (e) {}
+        alert('登录/注册成功');
+        window.location.href = 'profile.html';
+      } catch (e) { alert('发生错误，请重试'); }
+    }
+
+    function wechatAction() {
+      try {
+        const raw = localStorage.getItem('accountProfile');
+        const profile = raw ? JSON.parse(raw) : {};
+        if (!profile.nickname || profile.nickname.trim() === '') profile.nickname = '微信用户';
+        if (!profile.wechat || profile.wechat.trim() === '') profile.wechat = 'wx_' + Math.random().toString(36).slice(2, 8);
+        localStorage.setItem('accountProfile', JSON.stringify(profile));
+        localStorage.setItem('isLoggedIn', 'true');
+        try {
+          if (window.top !== window && window.parent && window.parent.localStorage) {
+            window.parent.localStorage.setItem('isLoggedIn', 'true');
+            window.parent.localStorage.setItem('accountProfile', JSON.stringify(profile));
+          }
+        } catch (e) {}
+        alert('登录/注册成功');
+        window.location.href = 'profile.html';
+      } catch (e) { alert('发生错误，请重试'); }
+    }
+    // 单页合并，无需模式切换
+  </script>
+</head>
+<body>
+  <!-- 状态栏 -->
+  <div class="status-bar">
+    <div>16:41</div>
+    <div></div>
+    <div class="flex items-center gap-1"><span>ll</span><span>5G</span><i class="fas fa-battery-three-quarters"></i></div>
+  </div>
+
+  <div class="px-4 pb-20">
+    <!-- 头部 -->
+    <div class="flex items-center py-4">
+      <button class="back-btn w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mr-3" data-back data-fallback="profile.html">
+        <i class="fas fa-arrow-left text-gray-600"></i>
+      </button>
+      <h1 id="page-title" class="text-xl font-bold text-gray-800">登录 / 注册</h1>
+    </div>
+
+    <!-- 微信快捷 -->
+    <div class="card p-6 mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="shortcut-title" class="text-lg font-bold text-gray-800">快捷方式</h2>
+        <i class="fab fa-weixin text-gray-400"></i>
+      </div>
+      <button class="primary-btn w-full py-3 rounded-xl flex items-center justify-center gap-2" onclick="wechatAction()">
+        <i class="fab fa-weixin"></i>
+        <span id="wechat-btn-text">微信一键登录/注册（演示）</span>
+      </button>
+    </div>
+
+    <!-- 手机号快捷（验证码） -->
+    <div class="card p-6 mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="phone-title" class="text-lg font-bold text-gray-800">手机号快捷登录/注册</h2>
+        <i class="fas fa-mobile-screen-button text-gray-400"></i>
+      </div>
+      <div class="space-y-4">
+        <div class="flex items-center gap-2">
+          <input id="quick-phone" type="tel" class="input-field" placeholder="请输入手机号" />
+          <button id="get-code-btn" class="px-3 py-2 rounded-lg border inline-btn" onclick="sendOtp()">获取验证码</button>
+        </div>
+        <div>
+          <input id="quick-code" class="input-field" placeholder="请输入6位验证码" maxlength="6" />
+        </div>
+        <button class="primary-btn w-full py-3 rounded-xl" onclick="submitOtp()"><span id="otp-submit-text">验证码登录/注册</span></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="common-nav.js"></script>
+</body>
+</html>
+
+

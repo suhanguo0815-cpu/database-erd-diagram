@@ -1,0 +1,184 @@
+[
+  {
+    "id": "c1",
+    "title": "营养学基础入门",
+    "cover": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 45,
+    "learners": 2300,
+    "rating": 4.8,
+    "tags": ["营养"]
+  },
+  {
+    "id": "c2",
+    "title": "居家健身指南",
+    "cover": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 30,
+    "learners": 1800,
+    "rating": 4.7,
+    "tags": ["运动"]
+  },
+  {
+    "id": "c3",
+    "title": "心理健康管理",
+    "cover": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 60,
+    "learners": 3100,
+    "rating": 4.9,
+    "tags": ["身心"]
+  },
+  {
+    "id": "c4",
+    "title": "跑步入门 8 周计划",
+    "cover": "https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 35,
+    "learners": 950,
+    "rating": 4.6,
+    "tags": ["运动", "跑步"]
+  },
+  {
+    "id": "c5",
+    "title": "企业白领减脂便当",
+    "cover": "https://images.unsplash.com/photo-1570945399116-11ad63b2d5d4?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 25,
+    "learners": 1260,
+    "rating": 4.5,
+    "tags": ["营养"]
+  },
+  {
+    "id": "c6",
+    "title": "力量训练零基础",
+    "cover": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 50,
+    "learners": 2100,
+    "rating": 4.7,
+    "tags": ["运动"]
+  },
+  {
+    "id": "c7",
+    "title": "地中海饮食全攻略",
+    "cover": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 40,
+    "learners": 1680,
+    "rating": 4.6,
+    "tags": ["营养"]
+  },
+  {
+    "id": "c8",
+    "title": "高效拉伸与放松",
+    "cover": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 20,
+    "learners": 890,
+    "rating": 4.4,
+    "tags": ["身心", "运动"]
+  },
+  {
+    "id": "c9",
+    "title": "高蛋白早餐30天计划",
+    "cover": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 15,
+    "learners": 1200,
+    "rating": 4.6,
+    "tags": ["营养"]
+  },
+  {
+    "id": "c10",
+    "title": "低GI饮食实操课",
+    "cover": "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 35,
+    "learners": 980,
+    "rating": 4.5,
+    "tags": ["营养"]
+  },
+  {
+    "id": "c11",
+    "title": "30天燃脂操打卡",
+    "cover": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 25,
+    "learners": 2050,
+    "rating": 4.7,
+    "tags": ["运动"]
+  },
+  {
+    "id": "c12",
+    "title": "办公室拉伸与颈椎救援",
+    "cover": "https://images.unsplash.com/photo-1540206276207-3af25c08abc4?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 18,
+    "learners": 1420,
+    "rating": 4.5,
+    "tags": ["身心", "运动"]
+  },
+  {
+    "id": "c13",
+    "title": "跑步姿势与配速训练",
+    "cover": "https://images.unsplash.com/photo-1520974779573-6c4b6b1c0b56?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 40,
+    "learners": 1670,
+    "rating": 4.6,
+    "tags": ["运动", "跑步"]
+  },
+  {
+    "id": "c14",
+    "title": "零基础普拉提入门",
+    "cover": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 28,
+    "learners": 1340,
+    "rating": 4.6,
+    "tags": ["身心"]
+  },
+  {
+    "id": "c15",
+    "title": "睡眠与恢复科学指南",
+    "cover": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 22,
+    "learners": 760,
+    "rating": 4.4,
+    "tags": ["身心"]
+  },
+  {
+    "id": "c16",
+    "title": "间歇性断食科学指南",
+    "cover": "https://images.unsplash.com/photo-1511910849309-0dffb4a12f33?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 30,
+    "learners": 1120,
+    "rating": 4.5,
+    "tags": ["营养"]
+  },
+  {
+    "id": "c17",
+    "title": "家用哑铃力量训练",
+    "cover": "https://images.unsplash.com/photo-1558611848-73f7eb4001a1?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 45,
+    "learners": 1880,
+    "rating": 4.7,
+    "tags": ["运动"]
+  },
+  {
+    "id": "c18",
+    "title": "备孕期营养与体重管理",
+    "cover": "https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 50,
+    "learners": 540,
+    "rating": 4.6,
+    "tags": ["营养"]
+  },
+  {
+    "id": "c19",
+    "title": "糖友友善餐盘设计",
+    "cover": "https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 36,
+    "learners": 880,
+    "rating": 4.5,
+    "tags": ["营养"]
+  },
+  {
+    "id": "c20",
+    "title": "徒手核心力量训练",
+    "cover": "https://images.unsplash.com/photo-1517832606299-7ae9b720a186?w=300&h=300&fit=crop&crop=center",
+    "durationMin": 32,
+    "learners": 1560,
+    "rating": 4.6,
+    "tags": ["运动"]
+  }
+]
+
+

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今日</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F2F2F2;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+        
+        .status-bar {
+            height: 44px;
+            background: #181818;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 15px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+        }
+        
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            background: rgba(255,255,255,0.95);
+            border-top: 1px solid #e5e5e7;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px;
+        }
+        
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 12px;
+            letter-spacing: 0.3px;
+        }
+        
+        .tab-item:hover:not(.active) {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .tab-item:active {
+            transform: scale(0.95);
+        }
+        
+        .tab-item.active {
+            color: #181818;
+            font-weight: 600;
+            text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-item:not(.active) {
+            color: #666666;
+            font-weight: 500;
+        }
+        
+
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f0f0f0;
+        }
+        
+        .progress-ring {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #181818 0deg, #181818 240deg, #E5E5E7 240deg, #E5E5E7 360deg);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .progress-ring::before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+        }
+        
+        .progress-ring i {
+            position: relative;
+            z-index: 1;
+            color: #181818;
+            font-size: 20px;
+        }
+        
+        .section-title {
+            color: #1C1C1E;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            letter-spacing: 0.3px;
+        }
+        
+        .section-subtitle {
+            color: #6B7280;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            letter-spacing: 0.2px;
+        }
+        
+        .card-title {
+            color: #1C1C1E;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .metric-value {
+            color: #1C1C1E;
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .metric-label {
+            color: #8E8E93;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        
+        .record-item {
+            transition: all 0.2s ease;
+        }
+        
+        .record-item:active {
+            transform: scale(0.98);
+        }
+        
+        .icon-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .nutrition-item {
+            text-align: center;
+            padding: 12px 8px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .nutrition-item:active {
+            transform: scale(0.95);
+        }
+        
+        .nutrition-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 6px;
+            font-size: 14px;
+        }
+        
+        .suggestion-card {
+            background: rgba(24, 24, 24, 0.1);
+            border: 1px solid rgba(24, 24, 24, 0.2);
+        }
+        
+        .suggestion-text {
+            color: #181818;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* T型结构动画效果 */
+        @keyframes tStructureFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes tStructureGlow {
+            0%, 100% {
+                box-shadow: 0 4px 20px rgba(195, 235, 46, 0.1);
+            }
+            50% {
+                box-shadow: 0 4px 30px rgba(195, 235, 46, 0.2);
+            }
+        }
+        
+        @keyframes tStructurePulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+        
+        /* 连接线动画 */
+        @keyframes tLineGrow {
+            from {
+                width: 0;
+                opacity: 0;
+            }
+            to {
+                width: 6rem;
+                opacity: 0.8;
+            }
+        }
+        
+        @keyframes tLineGrowVertical {
+            from {
+                height: 0;
+                opacity: 0;
+            }
+            to {
+                height: 1rem;
+                opacity: 0.8;
+            }
+        }
+        
+        /* 应用动画 */
+        .relative > div:first-child {
+            animation: tStructureFadeIn 0.8s ease-out, tStructureGlow 3s ease-in-out infinite;
+        }
+        
+        /* T型连接线动画（使用明确类名，避免受style选择器影响） */
+        .t-line-x {
+            animation: tLineGrow 0.8s ease-out forwards, tStructureGlow 3s ease-in-out infinite;
+        }
+        .t-line-y {
+            animation: tLineGrowVertical 0.8s ease-out 0.25s forwards, tStructureGlow 3s ease-in-out infinite;
+        }
+        
+        /* 优化小字号文字的对比度和可读性 */
+        .text-xs {
+            font-weight: 500 !important;
+            letter-spacing: 0.2px !important;
+        }
+        
+        .text-sm {
+            font-weight: 500 !important;
+            letter-spacing: 0.3px !important;
+        }
+        
+        .text-gray-500 {
+            color: #6B7280 !important;
+        }
+        
+        .text-gray-600 {
+            color: #4B5563 !important;
+            font-weight: 500 !important;
+        }
+        
+        .text-gray-800 {
+            color: #1F2937 !important;
+            font-weight: 600 !important;
+        }
+        
+        /* 优化统计数字的显示效果 */
+        .text-2xl {
+            font-weight: 700 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+            letter-spacing: 0.5px !important;
+        }
+        
+        .text-lg {
+            font-weight: 700 !important;
+            letter-spacing: 0.3px !important;
+        }
+        
+        /* 优化按钮和卡片文字 */
+        .font-medium {
+            font-weight: 600 !important;
+            text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .font-bold {
+            font-weight: 700 !important;
+            text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* 图标样式优化 */
+        .food-icon, .protein-icon {
+            font-size: 14px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 确保FontAwesome图标正确显示的后备方案 */
+        .fas {
+            font-family: "Font Awesome 6 Free", -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 900;
+        }
+        
+        /* 图标加载失败时的后备处理 */
+        .fas:before {
+            font-family: "Font Awesome 6 Free";
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div>16:41</div>
+        <div></div>
+        <div class="flex items-center gap-1">
+            <span>ll</span>
+            <span>5G</span>
+            <i class="fas fa-battery-three-quarters"></i>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="px-6 pb-20 pt-4">
+        <!-- 页面标题 -->
+        <div class="mb-4">
+            <h1 class="section-title">今日</h1>
+            <p class="section-subtitle"><i class="fas fa-face-smile-beam mr-1"></i>今日打卡完成！继续保持这份坚持！</p>
+        </div>
+
+        <!-- 今日数据概览 -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <!-- 卡路里卡片 - 占比2 -->
+            <div class="col-span-2">
+                <div class="card p-4">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-3" style="background-color: rgba(195, 235, 46, 0.1);">
+                            <i class="fas fa-fire" style="color: #A1DB67; font-size: 20px;"></i>
+                        </div>
+                        <div class="metric-value text-3xl font-bold text-gray-800 mb-1">1031</div>
+                        <div class="metric-label text-base font-semibold text-gray-700 mb-2">剩余卡路里</div>
+                        <div class="flex items-center gap-2 px-3 py-1 bg-white rounded-full shadow-sm">
+                            <i class="fas fa-running" style="color: #A1DB67; font-size: 12px;"></i>
+                            <span class="text-xs font-medium" style="color: #A1DB67;">+23 运动消耗</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 体重卡片 - 占比1 -->
+            <div class="col-span-1">
+                <div class="card p-4 h-full bg-gray-50 border-gray-200">
+                    <div class="flex flex-col items-center text-center h-full justify-center">
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mb-2">
+                            <i class="fas fa-weight text-gray-500" style="font-size: 16px;"></i>
+                        </div>
+                        <div id="home-current-weight" class="text-xl font-bold text-gray-700 mb-1">73.2</div>
+                        <div class="text-xs text-gray-500 mb-1">当前体重(kg)</div>
+                        <div class="flex items-center gap-1 text-xs text-green-600">
+                            <span style="font-size: 12px;">↓</span>
+                            <span>-0.3</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 211饮食结构 -->
+        <div class="card p-3 mb-3">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="card-title text-lg font-bold text-gray-800">今日饮食结构</h2>
+                <div class="flex items-center gap-1 px-2 py-1" style="background-color: rgba(195, 235, 46, 0.1); color: #181818;" class="text-xs font-medium rounded-full whitespace-nowrap">
+                    <i class="fas fa-lightbulb" style="font-size: 12px;"></i>
+                    <span>211健康饮食</span>
+                </div>
+            </div>
+            
+             <!-- T型饮食结构布局 -->
+             <div class="relative">
+                 <!-- 蔬菜区域 - 上半部分 -->
+                  <div class="mb-2 bg-white rounded-2xl border-2 relative overflow-hidden" style="border-color: #A1DB67;">
+                     <!-- 背景渐变 -->
+                     <div class="absolute inset-0 bg-gradient-to-br from-green-50 to-white opacity-60"></div>
+                     
+                     <!-- 内容区域 -->
+                     <div class="relative z-10 p-3">
+                         <div class="flex items-center justify-between">
+                             <!-- 左侧：图标和文字 -->
+                             <div class="flex items-center gap-3">
+                                 <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-md relative" style="background-color: rgba(195, 235, 46, 0.2);">
+                                     <i class="fas fa-carrot" style="color: #A1DB67; font-size: 18px;"></i>
+                                     <!-- 图标光晕效果 -->
+                                     <div class="absolute inset-0 rounded-full opacity-20 animate-pulse" style="background-color: #A1DB67;"></div>
+                                 </div>
+                                 <div>
+                                     <h3 class="text-sm font-bold text-gray-800">蔬菜摄入</h3>
+                                     <p class="text-xs text-gray-600">今日目标达成</p>
+                                 </div>
+                             </div>
+                             
+                             <!-- 右侧：百分比 -->
+                              <div class="text-right">
+                                  <div id="veg-pct" class="text-2xl font-bold" style="color: #A1DB67;">50%</div>
+                                  <div id="veg-grade" class="text-xs font-medium" style="color: #A1DB67;">优秀</div>
+                              </div>
+                         </div>
+                         
+                         <!-- 进度条 -->
+                          <div class="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                              <div id="veg-bar" class="h-full rounded-full transition-all duration-500 shadow-sm relative" style="background: linear-gradient(90deg, #A1DB67 0%, #A8D42E 100%); width: 50%;">
+                                 <!-- 进度条光效 -->
+                                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse"></div>
+                             </div>
+                         </div>
+                          
+                      </div>
+                     
+                      <!-- T型连接线 - 底部横线 -->
+                      <div class="t-line-x absolute bottom-0 left-1/2 transform -translate-x-1/2 w-28 h-1 opacity-80 z-20" style="background: linear-gradient(to right, transparent, #A1DB67, transparent);"></div>
+                 </div>
+                 
+                 <!-- T型连接线 - 垂直连接线 -->
+                  <div class="t-line-y absolute left-1/2 transform -translate-x-1/2 w-1 h-6 opacity-80 z-20" style="background: linear-gradient(to bottom, #A1DB67, transparent); top: calc(100% - 18px);"></div>
+                 
+                 <!-- 主食和蛋白质区域 -->
+                 <div class="grid grid-cols-2 gap-2">
+                     <!-- 主食 -->
+                     <div class="bg-white rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
+                         <div class="p-2">
+                             <div class="flex items-center gap-2 mb-2">
+                                                                 <div class="w-8 h-8 rounded-full flex items-center justify-center shadow-sm relative" style="background-color: rgba(24, 24, 24, 0.1);">
+                                    <i class="fas fa-bread-slice" style="color: #181818; font-size: 14px; font-weight: 600;"></i>
+                                    <!-- 图标装饰 -->
+                                    <div class="absolute inset-0 rounded-full border border-gray-300 opacity-30"></div>
+                                </div>
+                                 <div class="flex-1 min-w-0">
+                                     <h3 class="text-sm font-bold text-gray-800">主食</h3>
+                                     <p class="text-xs text-gray-600" style="font-size: 9px; line-height: 1;">碳水化合物</p>
+                                 </div>
+                             </div>
+                              <div class="text-center">
+                                  <div id="carb-pct" class="text-lg font-bold text-gray-800 mb-1">25%</div>
+                                  <div class="h-1 bg-gray-100 rounded-full overflow-hidden">
+                                      <div id="carb-bar" class="h-full rounded-full transition-all duration-500" style="background: linear-gradient(90deg, #181818 0%, #4A4A4A 100%); width: 25%;"></div>
+                                  </div>
+                              </div>
+                              
+                          </div>
+                     </div>
+                     
+                     <!-- 蛋白质 -->
+                     <div class="bg-white rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
+                         <div class="p-2">
+                             <div class="flex items-center gap-2 mb-2">
+                                                                 <div class="w-8 h-8 rounded-full flex items-center justify-center shadow-sm relative" style="background-color: rgba(24, 24, 24, 0.1);">
+                                    <i class="fas fa-drumstick-bite" style="color: #181818; font-size: 14px; font-weight: 600;"></i>
+                                    <!-- 图标装饰 -->
+                                    <div class="absolute inset-0 rounded-full border border-gray-300 opacity-30"></div>
+                                </div>
+                                 <div class="flex-1 min-w-0">
+                                     <h3 class="text-sm font-bold text-gray-800">蛋白质</h3>
+                                     <p class="text-xs text-gray-600" style="font-size: 9px; line-height: 1;">肉类蛋奶</p>
+                                 </div>
+                             </div>
+                              <div class="text-center">
+                                  <div id="pro-pct" class="text-lg font-bold text-gray-800 mb-1">25%</div>
+                                  <div class="h-1 bg-gray-100 rounded-full overflow-hidden">
+                                      <div id="pro-bar" class="h-full rounded-full transition-all duration-500" style="background: linear-gradient(90deg, #181818 0%, #4A4A4A 100%); width: 25%;"></div>
+                                  </div>
+                              </div>
+                              
+                          </div>
+                     </div>
+                 </div>
+             </div>
+        </div>
+
+        <!-- 打卡记录 -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-xl font-bold text-gray-800">打卡记录</h2>
+                    <div class="flex items-center gap-2">
+                        <!-- 三个打卡状态圆圈 -->
+                        <div class="flex items-center gap-1">
+                            <div class="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center">
+                                <span class="text-white" style="font-size: 8px;">✓</span>
+                            </div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center">
+                                <span class="text-white" style="font-size: 8px;">✓</span>
+                            </div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 flex items-center justify-center">
+                                <span class="text-white" style="font-size: 8px;">✓</span>
+                            </div>
+                        </div>
+                        <span class="text-xs text-green-600 font-medium">已完成</span>
+                    </div>
+                </div>
+        <button data-link="records.html" data-return="home.html" class="text-gray-600 text-sm flex items-center gap-2 font-medium hover:text-gray-800 transition-colors duration-200">
+                    <span>查看历史</span>
+                    <span style="font-size: 12px;">→</span>
+                </button>
+            </div>
+            <div class="space-y-2">
+                <!-- 今日饮食 -->
+                <div class="card p-3 record-item">
+                    <div class="flex items-center gap-3">
+                        <div class="icon-container" style="background-color: rgba(147, 197, 114, 0.1);">
+                            <i class="fas fa-utensils" style="color: #93C572; font-size: 16px;"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800 text-base">今日饮食</h3>
+                                    <p class="text-sm text-gray-600">3次记录 · 725卡路里</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-medium text-gray-800">12:30</div>
+                                    <div class="text-xs text-gray-500 mt-1">最近</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 今日运动 -->
+                <div class="card p-3 record-item">
+                    <div class="flex items-center gap-3">
+                        <div class="icon-container" style="background-color: rgba(24, 24, 24, 0.1);">
+                            <i class="fas fa-running" style="color: #181818; font-size: 16px;"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800 text-base">今日运动</h3>
+                                    <p class="text-sm text-gray-600">1次记录 · 320卡路里</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-medium text-gray-800">07:30</div>
+                                    <div class="text-xs text-gray-500 mt-1">晨跑</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 今日喝水 -->
+                <div class="card p-3 record-item">
+                    <div class="flex items-center gap-3">
+                        <div class="icon-container" style="background-color: rgba(24, 24, 24, 0.1);">
+                            <i class="fas fa-tint" style="color: #181818; font-size: 16px;"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800 text-base">今日喝水</h3>
+                                    <p class="text-sm text-gray-600">6次记录 · 1.2L</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-medium text-gray-800">16:30</div>
+                                    <div class="text-xs text-gray-500 mt-1">200ml</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 底部导航栏 -->
+    <div class="tab-bar">
+        <div class="tab-item active">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-xs">今日</span>
+        </div>
+        <div class="tab-item" onclick="window.location.href='progress.html'">
+            <i class="fas fa-bullseye text-xl"></i>
+            <span class="text-xs">目标</span>
+        </div>
+        <div class="tab-item" onclick="window.location.href='profile.html'">
+            <i class="fas fa-user text-xl"></i>
+            <span class="text-xs">我的</span>
+        </div>
+        <div class="tab-item" onclick="window.location.href='community-simple.html'">
+            <i class="fas fa-users text-xl"></i>
+            <span class="text-xs">社区</span>
+        </div>
+    </div>
+<script>
+  (function(){
+    const cw = localStorage.getItem('currentWeight');
+    if (cw) document.getElementById('home-current-weight').textContent = parseFloat(cw).toFixed(1);
+
+    // ===== 动态计算并渲染 T 型餐盘（2/1/1 占比）=====
+    function getNumber(v){ const n = Number(v); return Number.isFinite(n) ? n : null; }
+    function clamp01to100(v){ let n = Math.round(Number(v)||0); if (!Number.isFinite(n)) n = 0; return Math.min(100, Math.max(0, n)); }
+
+    const savedVeg = getNumber(localStorage.getItem('plateVeg'));
+    const savedPro = getNumber(localStorage.getItem('plateProtein'));
+    const savedCarb = getNumber(localStorage.getItem('plateCarb'));
+
+    // 默认 50/25/25（符合 2/1/1）
+    let veg = clamp01to100(savedVeg ?? 50);
+    let pro = clamp01to100(savedPro ?? 25);
+    let carb = clamp01to100(savedCarb ?? 25);
+
+    // 归一化到 100
+    const sum = veg + pro + carb;
+    if (sum > 0) {
+      veg = Math.round(veg / sum * 100);
+      pro = Math.round(pro / sum * 100);
+      carb = Math.round(carb / sum * 100);
+      // 纠偏，确保总和=100
+      const diff = 100 - (veg + pro + carb);
+      if (diff !== 0) {
+        // 将误差加到最大的一项，避免显示不和谐
+        const arr = [ {k:'veg',v:veg}, {k:'pro',v:pro}, {k:'carb',v:carb} ];
+        arr.sort((a,b)=>b.v-a.v);
+        if (arr[0].k === 'veg') veg += diff;
+        else if (arr[0].k === 'pro') pro += diff;
+        else carb += diff;
+      }
+    }
+
+    // 角标已移除，无需计算徽标段数
+
+    // 渲染到 DOM
+    const $ = (id)=>document.getElementById(id);
+    const vegPctEl = $('veg-pct');
+    const vegBarEl = $('veg-bar');
+    // 角标 DOM 已移除
+    const proPctEl = $('pro-pct');
+    const proBarEl = $('pro-bar');
+    
+    const carbPctEl = $('carb-pct');
+    const carbBarEl = $('carb-bar');
+    
+
+    if (vegPctEl) vegPctEl.textContent = veg + '%';
+    if (vegBarEl) vegBarEl.style.width = veg + '%';
+    if (proPctEl) proPctEl.textContent = pro + '%';
+    if (proBarEl) proBarEl.style.width = pro + '%';
+
+    if (carbPctEl) carbPctEl.textContent = carb + '%';
+    if (carbBarEl) carbBarEl.style.width = carb + '%';
+    
+
+    // 简单评价文案（蔬菜占比越高越好）
+    const grade = veg >= 50 ? '优秀' : (veg >= 40 ? '良好' : (veg >= 30 ? '一般' : '待提升'));
+    const vegGradeEl = $('veg-grade');
+    if (vegGradeEl) vegGradeEl.textContent = grade;
+  })();
+</script>
+<script src="common-nav.js"></script>
+</body>
+</html> 

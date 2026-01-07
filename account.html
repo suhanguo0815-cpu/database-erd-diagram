@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人账号信息</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F2F2F2; }
+    .status-bar { height: 44px; background: #181818; color: white; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-size:14px; font-weight:600; }
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 1px solid #E5E5E7; }
+    .back-btn { transition: all 0.2s ease; }
+    .back-btn:active { transform: scale(0.95); }
+    .input-field { background: #F2F2F2; border: 1px solid #E5E5E7; border-radius: 12px; padding: 12px 16px; font-size: 16px; transition: all 0.2s ease; width: 100%; }
+    .input-field:focus { outline: none; border-color: #A1DB67; background: #fff; box-shadow: 0 0 0 3px rgba(195,235,46,0.12); }
+    .save-btn { background:#A1DB67; color:#111827; border-radius: 12px; font-weight:600; transition: all 0.2s ease; }
+    .save-btn:active { transform: scale(0.98); }
+    .logout-btn { background:#fff; color:#DC2626; border: 1px solid #FCA5A5; border-radius: 12px; font-weight:600; transition: all 0.2s ease; }
+    .logout-btn:active { transform: scale(0.98); }
+  </style>
+  <script>
+    function loadAccount() {
+      try {
+        const raw = localStorage.getItem('accountProfile');
+        const data = raw ? JSON.parse(raw) : {};
+        ['nickname','phone','wechat'].forEach((key) => {
+          const el = document.getElementById(key);
+          if (!el) return;
+          const value = (data[key] || '').trim();
+          if (value) {
+            el.value = value;
+            el.disabled = true; // 已有信息不可修改
+          } else {
+            el.disabled = false; // 允许补充
+            el.addEventListener('blur', function onBlur() {
+              const newValue = el.value.trim();
+              if (!newValue) return;
+              try {
+                const latestRaw = localStorage.getItem('accountProfile');
+                const latest = latestRaw ? JSON.parse(latestRaw) : {};
+                latest[key] = newValue;
+                localStorage.setItem('accountProfile', JSON.stringify(latest));
+                el.disabled = true; // 补充一次后锁定
+                alert('已保存');
+              } catch (e) {}
+            }, { once: true });
+          }
+        });
+      } catch (e) {}
+    }
+    function logoutAccount() {
+      try {
+        localStorage.removeItem('isLoggedIn');
+        try { if (window.top !== window && window.parent && window.parent.localStorage) { window.parent.localStorage.removeItem('isLoggedIn'); } } catch(e){}
+        alert('已退出登录');
+        window.location.href = 'auth.html';
+      } catch (e) {
+        window.location.href = 'auth.html';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadAccount);
+  </script>
+</head>
+<body>
+  <!-- 状态栏 -->
+  <div class="status-bar">
+    <div>16:41</div>
+    <div></div>
+    <div class="flex items-center gap-1"><span>ll</span><span>5G</span><i class="fas fa-battery-three-quarters"></i></div>
+  </div>
+
+  <!-- 主内容 -->
+  <div class="px-4 pb-20">
+    <!-- 头部 -->
+    <div class="flex items-center py-4">
+      <button class="back-btn w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mr-3" data-back data-fallback="profile.html">
+        <i class="fas fa-arrow-left text-gray-600"></i>
+      </button>
+      <h1 class="text-xl font-bold text-gray-800">个人账号信息</h1>
+    </div>
+
+    <!-- 基本信息 -->
+    <div class="card p-6 mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-gray-800">基本信息</h2>
+        <i class="fas fa-user text-gray-400"></i>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">昵称</label>
+        <input id="nickname" class="input-field" placeholder="请输入昵称" />
+      </div>
+    </div>
+
+    <!-- 联系方式 -->
+    <div class="card p-6 mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-gray-800">联系方式</h2>
+        <i class="fas fa-address-book text-gray-400"></i>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">手机号</label>
+          <input id="phone" type="tel" class="input-field" placeholder="请输入手机号" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">微信号</label>
+          <input id="wechat" class="input-field" placeholder="请输入微信号" />
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- 退出登录 -->
+    <div class="card p-6 mt-4">
+      <button class="logout-btn w-full py-3 rounded-xl" onclick="logoutAccount()">退出登录</button>
+    </div>
+  </div>
+  <script src="common-nav.js"></script>
+  <script>
+    // 复用通用返回逻辑，无需额外绑定
+  </script>
+</body>
+</html>
+

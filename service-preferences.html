@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务偏好设置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F2F2F2;
+        }
+        .status-bar {
+            height: 44px;
+            background: #181818;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #E5E5E7;
+        }
+        .back-btn { transition: all 0.2s ease; }
+        .back-btn:active { transform: scale(0.95); }
+        .save-btn {
+            background:#A1DB67; color:#111827; border-radius: 12px; font-weight:600; transition: all 0.2s ease;
+        }
+        .save-btn:active { transform: scale(0.98); }
+        .personality-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .personality-card.selected {
+            border-color: #A1DB67;
+            background: rgba(195, 235, 46, 0.06);
+        }
+        .personality-card:active {
+            transform: scale(0.98);
+        }
+        .personality-card .w-5.h-5 { display:flex; align-items:center; justify-content:center; }
+        .personality-card.selected .w-5.h-5 { background: #A1DB67; border-radius: 9999px; }
+        .personality-card.selected .icon-badge { box-shadow: 0 0 0 2px #A1DB67 inset; }
+        .subpage-title { color: #1C1C1E; font-size: 22px; font-weight: 700; letter-spacing: 0.2px; }
+        .subsection-title { color: #1C1C1E; font-size: 18px; font-weight: 700; letter-spacing: 0.2px; }
+        .time-slot {
+            transition: all 0.2s ease;
+        }
+        .time-slot:active {
+            transform: scale(0.95);
+        }
+        .time-slot.active {
+            background: #181818;
+            color: white;
+        }
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: #E5E5E7;
+            border-radius: 12px;
+            position: relative;
+            transition: background 0.2s ease;
+        }
+        .toggle-switch.active {
+            background: #181818;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+        .ai-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #A1DB67;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #181818;
+            font-size: 24px;
+            margin: 0 auto;
+        }
+        .icon-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(195, 235, 46, 0.1);
+            color: #A1DB67;
+        }
+        /* 底部时间选择器 */
+        .sheet-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            align-items: flex-end;
+            z-index: 50;
+        }
+        .sheet-backdrop.show { display: flex; }
+        .sheet {
+            width: 100%;
+            background: #fff;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            padding: 16px;
+            transform: translateY(100%);
+            transition: transform .25s ease;
+            box-shadow: 0 -8px 24px rgba(0,0,0,0.08);
+        }
+        .sheet.show { transform: translateY(0); }
+        .handle {
+            width: 44px;
+            height: 4px;
+            background: #e5e5e7;
+            border-radius: 2px;
+            margin: 0 auto 12px;
+        }
+        .editable-time {
+            cursor: pointer;
+        }
+        .chip {
+            border: 1px solid #E5E5E7;
+            border-radius: 9999px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #4B5563;
+            background: #fff;
+            transition: all .15s ease;
+        }
+        .chip.active { background:#A1DB67; color:#111827; border-color:#A1DB67; }
+        .stepper {
+            width: 36px; height: 36px; border-radius: 8px; border: 1px solid #E5E5E7; background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div>16:41</div>
+        <div></div>
+        <div class="flex items-center gap-1">
+            <span>ll</span>
+            <span>5G</span>
+            <i class="fas fa-battery-three-quarters"></i>
+        </div>
+    </div>
+
+        <!-- 主内容 -->
+    <div class="px-4 pb-20">
+        <!-- 头部 -->
+            <div class="flex items-center py-4">
+                <button class="back-btn w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mr-3" data-back data-fallback="profile.html">
+                    <i class="fas fa-arrow-left text-gray-600"></i>
+                </button>
+                <h1 class="subpage-title">服务偏好设置</h1>
+            </div>
+
+        <!-- AI营养师文慧介绍 -->
+        <div class="card p-6 mb-6">
+            <div class="text-center mb-4">
+                <div class="ai-avatar mb-3" data-link="nutritionist.html" data-return="service-preferences.html" style="cursor: pointer;">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h2 class="subsection-title">AI营养师 文慧</h2>
+                <p class="text-sm text-gray-600">您的专属健康管理助手</p>
+            </div>
+            <div class="rounded-lg p-3" style="background-color: rgba(24, 24, 24, 0.05);">
+                <p class="text-sm text-center" style="color: #181818;">
+                    "您好！我是文慧，您的AI营养师。我可以根据您的偏好提供个性化的健康建议和服务。"
+                </p>
+            </div>
+        </div>
+
+        <!-- 性格服务风格选择 -->
+        <div class="mb-6">
+            <h2 class="subsection-title mb-4">选择文慧的性格风格</h2>
+            <div class="space-y-3">
+                <!-- 温柔贴心型 -->
+                <div class="personality-card card p-4 selected" data-style="gentle">
+                    <div class="flex items-center gap-3">
+                        <div class="icon-badge">
+                            <i class="fas fa-heart text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-800">温柔贴心型</h3>
+                            <p class="text-sm text-gray-600">像朋友一样关心您，提供温暖的建议</p>
+                        </div>
+                        <div class="w-5 h-5">
+                            <i class="fas fa-check text-white text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 专业严谨型 -->
+                <div class="personality-card card p-4" data-style="professional">
+                    <div class="flex items-center gap-3">
+                        <div class="icon-badge">
+                            <i class="fas fa-user-md text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-800">专业严谨型</h3>
+                            <p class="text-sm text-gray-600">以专业角度分析，提供科学建议</p>
+                        </div>
+                        <div class="w-5 h-5">
+                            <div class="w-5 h-5 rounded-full border-2 border-gray-300"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活力激励型 -->
+                <div class="personality-card card p-4" data-style="energetic">
+                    <div class="flex items-center gap-3">
+                        <div class="icon-badge">
+                            <i class="fas fa-fire text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-800">活力激励型</h3>
+                            <p class="text-sm text-gray-600">充满正能量，激励您坚持健康目标</p>
+                        </div>
+                        <div class="w-5 h-5">
+                            <div class="w-5 h-5 rounded-full border-2 border-gray-300"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 幽默风趣型 -->
+                <div class="personality-card card p-4" data-style="humorous">
+                    <div class="flex items-center gap-3">
+                        <div class="icon-badge">
+                            <i class="fas fa-face-smile text-sm"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-800">幽默风趣型</h3>
+                            <p class="text-sm text-gray-600">轻松愉快的交流，让健康管理更有趣</p>
+                        </div>
+                        <div class="w-5 h-5">
+                            <div class="w-5 h-5 rounded-full border-2 border-gray-300"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- 提醒设置 -->
+        <div class="mb-6">
+            <h2 class="subsection-title mb-4">提醒设置</h2>
+            
+            
+
+            <!-- 提醒内容设置 -->
+            <div class="card p-6 mb-4">
+                <h3 class="font-medium text-gray-800 mb-3">提醒内容设置</h3>
+                <div class="space-y-3">
+                    <!-- 饮食提醒 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="icon-badge">
+                                <i class="fas fa-utensils text-sm"></i>
+                            </div>
+                            <span class="text-gray-800">饮食提醒</span>
+                        </div>
+                        <div class="toggle-switch active content-toggle" data-content-key="diet" data-target-rows="breakfast,lunch,dinner"></div>
+                    </div>
+
+                    <!-- 运动提醒 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="icon-badge">
+                                <i class="fas fa-running text-sm"></i>
+                            </div>
+                            <span class="text-gray-800">运动提醒</span>
+                        </div>
+                        <div class="toggle-switch active content-toggle" data-content-key="workout" data-target-rows="workout"></div>
+                    </div>
+
+                    <!-- 喝水提醒 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="icon-badge">
+                                <i class="fas fa-tint text-sm"></i>
+                            </div>
+                            <span class="text-gray-800">喝水提醒</span>
+                        </div>
+                        <div class="toggle-switch active content-toggle" data-content-key="water" data-target-rows="water"></div>
+                    </div>
+
+                    <!-- 体重记录提醒 -->
+                    
+
+                    <!-- 睡眠提醒 -->
+                    
+                </div>
+            </div>
+
+            <!-- 时间段设置 -->
+            <div class="card p-6 mb-4">
+                <h3 class="font-medium text-gray-800 mb-3">时间段设置</h3>
+                <div class="space-y-3">
+                    <!-- 早餐提醒 -->
+                    <div class="flex items-center justify-between" data-row="breakfast">
+                        <div class="flex items-center gap-3">
+                            <div class="icon-badge">
+                                <i class="fas fa-sun text-sm"></i>
+                            </div>
+                            <span class="text-gray-800">早餐提醒</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="editable-time text-sm text-gray-600" data-key="breakfast">07:30</span>
+                            <div class="toggle-switch active" data-row-key="breakfast"></div>
+                        </div>
+                    </div>
+
+                    <!-- 午餐提醒 -->
+                    <div class="flex items-center justify-between" data-row="lunch">
+                        <div class="flex items-center gap-3">
+                            <div class="icon-badge">
+                                <i class="fas fa-bowl-food text-sm"></i>
+                            </div>
+                            <span class="text-gray-800">午餐提醒</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="editable-time text-sm text-gray-600" data-key="lunch">12:00</span>
+                            <div class="toggle-switch active" data-row-key="lunch"></div>
+                        </div>
+                    </div>
+
+                    <!-- 晚餐提醒 -->
+                    <div class="flex items-center justify-between" data-row="dinner">
+                        <div class="flex items-center gap-3">
+                            <div class="icon-badge">
+                                <i class="fas fa-moon text-sm"></i>
+                            </div>
+                            <span class="text-gray-800">晚餐提醒</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="editable-time text-sm text-gray-600" data-key="dinner">18:30</span>
+                            <div class="toggle-switch active" data-row-key="dinner"></div>
+                        </div>
+                    </div>
+
+                    <!-- 运动提醒 -->
+                    <div class="flex items-center justify-between" data-row="workout">
+                        <div class="flex items-center gap-3">
+                            <div class="icon-badge">
+                                <i class="fas fa-dumbbell text-sm"></i>
+                            </div>
+                            <span class="text-gray-800">运动提醒</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="editable-time text-sm text-gray-600" data-key="workout">19:00</span>
+                            <div class="toggle-switch" data-row-key="workout"></div>
+                        </div>
+                    </div>
+
+                    <!-- 喝水提醒 -->
+                    <div class="flex items-center justify-between" data-row="water">
+                        <div class="flex items-center gap-3">
+                            <div class="icon-badge">
+                                <i class="fas fa-tint text-sm"></i>
+                            </div>
+                            <span class="text-gray-800">喝水提醒</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="editable-time text-sm text-gray-600" data-key="water" data-mode="interval">每2小时</span>
+                            <div class="toggle-switch active" data-row-key="water"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 保存按钮 -->
+        <div class="card p-6">
+            <button class="save-btn w-full py-3 rounded-xl">保存设置</button>
+        </div>
+    </div>
+
+    <!-- 时间选择底部弹窗 -->
+    <div id="timePicker" class="sheet-backdrop">
+        <div class="sheet w-full max-w-md mx-auto">
+            <div class="handle"></div>
+            <div class="flex items-center justify-between mb-3">
+                <div class="text-base font-medium text-gray-800">调整提醒时间</div>
+                <button id="timePickerClose" class="text-gray-500 text-sm">取消</button>
+            </div>
+            <div class="space-y-4">
+                <div id="timeControls">
+                    <div id="presetChips" class="grid grid-cols-3 gap-2 text-center"></div>
+                    <div class="flex items-center justify-between mt-3">
+                        <div class="text-sm text-gray-600">选择具体时间</div>
+                        <input id="timeInput" type="time" class="border border-gray-200 rounded-lg px-3 py-2" />
+                    </div>
+                    <div id="timeHint" class="text-xs text-gray-500 text-right mt-1"></div>
+                </div>
+                <div id="intervalChips" class="grid grid-cols-4 gap-2 text-center hidden">
+                    <button class="chip" data-iv="1">每1小时</button>
+                    <button class="chip" data-iv="2">每2小时</button>
+                    <button class="chip" data-iv="3">每3小时</button>
+                    <button class="chip" data-iv="4">每4小时</button>
+                </div>
+                <button id="timePickerConfirm" class="w-full save-btn py-2 rounded-lg">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 性格选择交互 + 持久化
+        (function initPersonality(){
+            const KEY = 'servicePrefsPersonality';
+            const cards = Array.from(document.querySelectorAll('.personality-card'));
+            function setSelected(el){
+                cards.forEach(c => {
+                    c.classList.remove('selected');
+                    const check = c.querySelector('.w-5.h-5');
+                    if (check) check.innerHTML = '<div class="w-5 h-5 rounded-full border-2 border-gray-300"></div>';
+                });
+                el.classList.add('selected');
+                const check = el.querySelector('.w-5.h-5');
+                if (check) check.innerHTML = '<i class="fas fa-check text-white text-xs"></i>';
+                const style = el.getAttribute('data-style');
+                if (style) try { localStorage.setItem(KEY, style); } catch(e) {}
+            }
+            // 绑定点击
+            cards.forEach(card => card.addEventListener('click', ()=> setSelected(card)));
+            // 恢复
+            try {
+                const saved = localStorage.getItem(KEY);
+                if (saved) {
+                    const match = cards.find(c => c.getAttribute('data-style') === saved);
+                    if (match) setSelected(match);
+                } else {
+                    // 初始化确保选中态渲染正确
+                    const defaultSel = cards.find(c => c.classList.contains('selected'));
+                    if (defaultSel) setSelected(defaultSel);
+                }
+            } catch(e) {}
+        })();
+
+        // 选项按钮交互（限定在各自容器内）
+        document.querySelectorAll('.grid').forEach(group => {
+            group.querySelectorAll('.time-slot').forEach(slot => {
+                slot.addEventListener('click', function() {
+                    group.querySelectorAll('.time-slot').forEach(s => {
+                        s.classList.remove('active');
+                        s.classList.add('bg-gray-100', 'text-gray-600');
+                    });
+                    this.classList.add('active');
+                    this.classList.remove('bg-gray-100', 'text-gray-600');
+                });
+            });
+        });
+
+        // 开关交互
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                // 内容与时间段联动：仅当为内容类开关时处理
+                if (this.classList.contains('content-toggle')) {
+                    const targets = (this.dataset.targetRows || '').split(',').map(s => s.trim()).filter(Boolean);
+                    const isOn = this.classList.contains('active');
+                    targets.forEach(key => {
+                        const row = document.querySelector(`[data-row="${key}"]`);
+                        if (!row) return;
+                        if (isOn) row.classList.remove('hidden'); else row.classList.add('hidden');
+                        // 若内容被关闭，同步关闭行内开关
+                        if (!isOn) {
+                            const rowSwitch = row.querySelector('.toggle-switch[data-row-key]');
+                            if (rowSwitch) rowSwitch.classList.remove('active');
+                        }
+                    });
+                }
+            });
+        });
+
+        // 初始化：根据内容类开关的状态，设置时间段是否显示
+        document.querySelectorAll('.content-toggle').forEach(toggle => {
+            const targets = (toggle.dataset.targetRows || '').split(',').map(s => s.trim()).filter(Boolean);
+            const isOn = toggle.classList.contains('active');
+            targets.forEach(key => {
+                const row = document.querySelector(`[data-row="${key}"]`);
+                if (!row) return;
+                if (isOn) row.classList.remove('hidden'); else row.classList.add('hidden');
+            });
+        });
+
+        // 提醒时间段调整交互
+        (function initTimeEditor(){
+            const sheet = document.getElementById('timePicker');
+            const sheetPanel = sheet.querySelector('.sheet');
+            const input = document.getElementById('timeInput');
+            const btnOk = document.getElementById('timePickerConfirm');
+            const btnClose = document.getElementById('timePickerClose');
+            let currentTarget = null;
+            const STORAGE_KEY = 'servicePrefs';
+            const timeControls = document.getElementById('timeControls');
+            const intervalChips = document.getElementById('intervalChips');
+
+            function openSheet(target){
+                currentTarget = target;
+                const mode = target.getAttribute('data-mode') || 'time';
+                if (mode === 'interval') {
+                    timeControls.classList.add('hidden');
+                    intervalChips.classList.remove('hidden');
+                    // 选中已保存或当前值
+                    const match = target.textContent.match(/每(\d+)小时/);
+                    const hours = match ? match[1] : '2';
+                    document.querySelectorAll('#intervalChips .chip').forEach(c=>{
+                        c.classList.toggle('active', c.getAttribute('data-iv') === String(hours));
+                    });
+                } else {
+                    intervalChips.classList.add('hidden');
+                    timeControls.classList.remove('hidden');
+                    // 根据 data-key（breakfast/lunch/dinner/workout）生成对应时间芯片
+                    const type = target.getAttribute('data-key');
+                    buildPresetChips(type);
+                    // 设置时间输入的校验范围与提示
+                    const hint = document.getElementById('timeHint');
+                    if (type === 'breakfast') {
+                        input.min = '06:00'; input.max = '12:00';
+                        if (hint) hint.textContent = '允许范围：06:00 - 12:00';
+                    } else if (type === 'lunch') {
+                        input.min = '11:00'; input.max = '14:00';
+                        if (hint) hint.textContent = '允许范围：11:00 - 14:00';
+                    } else if (type === 'dinner') {
+                        input.min = '16:00'; input.max = '24:00';
+                        if (hint) hint.textContent = '允许范围：16:00 - 24:00';
+                    } else {
+                        input.removeAttribute('min'); input.removeAttribute('max');
+                        if (hint) hint.textContent = '';
+                    }
+                    const val = (target.textContent || '').trim();
+                    const parts = val.split(':');
+                    if (parts.length === 2) {
+                        const h = String(parseInt(parts[0],10)).padStart(2,'0');
+                        const m = String(parseInt(parts[1],10)).padStart(2,'0');
+                        input.value = `${h}:${m}`;
+                    } else {
+                        input.value = '08:00';
+                    }
+                }
+                sheet.classList.add('show');
+                // 小延时触发展示动画
+                requestAnimationFrame(() => sheetPanel.classList.add('show'));
+            }
+
+            function closeSheet(){
+                sheetPanel.classList.remove('show');
+                setTimeout(() => sheet.classList.remove('show'), 200);
+            }
+
+            document.querySelectorAll('.editable-time').forEach(el => {
+                el.addEventListener('click', () => openSheet(el));
+            });
+
+            btnClose.addEventListener('click', closeSheet);
+            sheet.addEventListener('click', (e) => { if (e.target === sheet) closeSheet(); });
+
+            // 动态生成推荐时间芯片：按类型限制不必要的时间
+            function buildPresetChips(type){
+                const container = document.getElementById('presetChips');
+                if (!container) return;
+                container.innerHTML = '';
+                const presetsMap = {
+                    breakfast: ['06:00','06:30','07:00','07:30','08:00','09:00'],
+                    lunch: ['11:00','11:30','12:00','12:30','13:00','13:30'],
+                    dinner: ['16:30','17:00','17:30','18:00','18:30','19:00'],
+                    workout: ['17:00','17:30','18:00','18:30','19:00','20:00'],
+                    default: ['07:00','12:00','18:00']
+                };
+                const list = presetsMap[type] || presetsMap.default;
+                list.forEach(t => {
+                    const btn = document.createElement('button');
+                    btn.className = 'chip';
+                    btn.textContent = t;
+                    btn.dataset.preset = t;
+                    btn.addEventListener('click', () => {
+                        container.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+                        btn.classList.add('active');
+                        input.value = t;
+                    });
+                    container.appendChild(btn);
+                });
+            }
+
+            // 间隔芯片点击
+            document.querySelectorAll('#intervalChips .chip').forEach(el => {
+                el.addEventListener('click', ()=>{
+                    document.querySelectorAll('#intervalChips .chip').forEach(c=>c.classList.remove('active'));
+                    el.classList.add('active');
+                });
+            });
+
+            btnOk.addEventListener('click', () => {
+                if (!currentTarget) return closeSheet();
+                const mode = currentTarget.getAttribute('data-mode') || 'time';
+                const val = input.value || '08:00';
+                if (mode === 'interval') {
+                    const active = document.querySelector('#intervalChips .chip.active');
+                    const hours = active ? active.getAttribute('data-iv') : '2';
+                    currentTarget.textContent = `每${hours}小时`;
+                    saveKV(currentTarget.getAttribute('data-key'), `每${hours}小时`);
+                } else {
+                    // 校验范围
+                    const type = currentTarget.getAttribute('data-key');
+                    function toMinutes(t){ const [h,m]=t.split(':'); return parseInt(h,10)*60+parseInt(m,10); }
+                    const v = toMinutes(val);
+                    const ok = (function(){
+                        if (type === 'breakfast') return v >= toMinutes('06:00') && v <= toMinutes('12:00');
+                        if (type === 'lunch') return v >= toMinutes('11:00') && v <= toMinutes('14:00');
+                        if (type === 'dinner') return v >= toMinutes('16:00') && v <= toMinutes('24:00');
+                        return true;
+                    })();
+                    if (!ok) {
+                        alert('不在允许范围内，请根据提示选择时间');
+                        return;
+                    }
+                    currentTarget.textContent = val;
+                    saveKV(currentTarget.getAttribute('data-key'), val);
+                }
+                // 轻微高亮反馈
+                currentTarget.classList.add('ring-2','ring-black','rounded');
+                setTimeout(() => currentTarget.classList.remove('ring-2','ring-black'), 500);
+                closeSheet();
+            });
+
+            // 存储与恢复
+            function loadAll(){
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return {};
+                    return JSON.parse(raw) || {};
+                } catch(e){ return {}; }
+            }
+            function saveKV(key, value){
+                if (!key) return;
+                const data = loadAll();
+                data[key] = value;
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+            }
+            function restoreTimes(){
+                const data = loadAll();
+                document.querySelectorAll('.editable-time').forEach(el => {
+                    const k = el.getAttribute('data-key');
+                    if (k && data[k]) el.textContent = data[k];
+                });
+            }
+            restoreTimes();
+        })();
+
+        // 内容开关与行开关的持久化
+        (function initPersistence(){
+            const STORAGE_SWITCH = 'servicePrefsSwitch';
+            function load(){ try { return JSON.parse(localStorage.getItem(STORAGE_SWITCH)||'{}'); } catch(e){ return {}; } }
+            function save(obj){ try { localStorage.setItem(STORAGE_SWITCH, JSON.stringify(obj)); } catch(e){} }
+
+            const state = load();
+            // 恢复内容类开关
+            document.querySelectorAll('.content-toggle').forEach(tg => {
+                const key = tg.getAttribute('data-content-key');
+                if (key && state[key] === false) tg.classList.remove('active');
+                // 触发行显隐
+                const targets = (tg.dataset.targetRows || '').split(',').map(s=>s.trim()).filter(Boolean);
+                const isOn = tg.classList.contains('active');
+                targets.forEach(k=>{
+                    const row = document.querySelector(`[data-row="${k}"]`);
+                    if (row) (isOn ? row.classList.remove('hidden') : row.classList.add('hidden'));
+                });
+                // 点击时保存
+                tg.addEventListener('click', () => {
+                    const k = tg.getAttribute('data-content-key');
+                    if (!k) return;
+                    const cur = tg.classList.contains('active');
+                    state[k] = cur;
+                    if (!cur) {
+                        targets.forEach(tk => { state[`row:${tk}`] = false; });
+                    }
+                    save(state);
+                });
+            });
+
+            // 恢复行内开关状态
+            document.querySelectorAll('.toggle-switch[data-row-key]').forEach(sw => {
+                const k = sw.getAttribute('data-row-key');
+                if (k && state[`row:${k}`] === false) sw.classList.remove('active');
+                sw.addEventListener('click', () => {
+                    const key = sw.getAttribute('data-row-key');
+                    if (!key) return;
+                    state[`row:${key}`] = sw.classList.contains('active');
+                    save(state);
+                });
+            });
+        })();
+    </script>
+    <script>
+        // 保存按钮：汇总关键偏好到一个快照并提示
+        (function(){
+            function createToast(message){
+                const t = document.createElement('div');
+                t.textContent = message || '已保存';
+                t.style.position = 'fixed';
+                t.style.left = '50%';
+                t.style.bottom = '100px';
+                t.style.transform = 'translateX(-50%)';
+                t.style.background = 'rgba(17,17,17,0.9)';
+                t.style.color = '#fff';
+                t.style.padding = '10px 14px';
+                t.style.borderRadius = '10px';
+                t.style.fontSize = '12px';
+                t.style.zIndex = '1000';
+                document.body.appendChild(t);
+                setTimeout(()=>{ t.remove(); }, 1500);
+            }
+            const saveBtn = document.querySelector('.save-btn');
+            if (!saveBtn) return;
+            saveBtn.addEventListener('click', function(){
+                // 读取已分散存储的偏好
+                let personality = null, switches = null, times = null;
+                try { personality = localStorage.getItem('servicePrefsPersonality') || null; } catch(e){}
+                try { switches = JSON.parse(localStorage.getItem('servicePrefsSwitch')||'{}'); } catch(e){ switches = {}; }
+                try { times = JSON.parse(localStorage.getItem('servicePrefs')||'{}'); } catch(e){ times = {}; }
+                // 额外收集当前 DOM 中的时间显示值作为快照冗余
+                const domTimes = {};
+                document.querySelectorAll('.editable-time').forEach(el=>{
+                    const k = el.getAttribute('data-key');
+                    if (k) domTimes[k] = (el.textContent||'').trim();
+                });
+                const snapshot = { ts: Date.now(), personality, switches, times, domTimes };
+                try { localStorage.setItem('servicePrefsSnapshot', JSON.stringify(snapshot)); } catch(e){}
+                createToast('设置已保存');
+            });
+        })();
+    </script>
+</body>
+</html> 
