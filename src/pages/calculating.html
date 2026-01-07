@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方案生成中</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background: #f4fdf6;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(223, 230, 134, 0.2) 0px, transparent 50%),
+                radial-gradient(at 90% 10%, rgba(161, 219, 103, 0.2) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(111, 200, 107, 0.1) 0px, transparent 50%),
+                radial-gradient(at 10% 90%, rgba(220, 229, 184, 0.2) 0px, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 24px 34px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 背景装饰 */
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(161, 219, 103, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(111, 200, 107, 0.08) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .status-bar-time {
+            position: absolute;
+            top: 14px;
+            left: 30px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #1C1C1E;
+        }
+
+        .status-bar-icons {
+            position: absolute;
+            top: 14px;
+            right: 30px;
+            display: flex;
+            gap: 6px;
+            color: #1C1C1E;
+            font-size: 14px;
+        }
+
+        /* 顶部导航 */
+        .top-nav {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1C1C1E;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 320px;
+            z-index: 10;
+        }
+
+        /* 食物插图容器 */
+        .food-image-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-bottom: 48px;
+        }
+
+        .food-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .food-image.active {
+            opacity: 1;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(-50%, -50%) translateY(0px);
+            }
+            50% {
+                transform: translate(-50%, -50%) translateY(-12px);
+            }
+        }
+
+        .food-image.active {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* 进度条区域 */
+        .progress-section {
+            width: 100%;
+            text-align: center;
+        }
+
+        .progress-text {
+            font-size: 15px;
+            color: #4B5563;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .progress-text span {
+            color: #1C1C1E;
+            font-weight: 700;
+        }
+
+        .progress-bar-container {
+            position: relative;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .progress-bar-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #A1DB67 0%, #6FC86B 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-bar-glow {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(161, 219, 103, 0.5);
+        }
+
+        /* 底部提示 */
+        .tip-section {
+            position: absolute;
+            bottom: 60px;
+            left: 24px;
+            right: 24px;
+            text-align: center;
+        }
+
+        .tip-text {
+            font-size: 13px;
+            color: #9CA3AF;
+            font-weight: 400;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        /* 装饰元素 */
+        .deco-leaf {
+            position: absolute;
+            color: #A1DB67;
+            opacity: 0.3;
+            animation: drift 6s ease-in-out infinite;
+        }
+
+        .deco-leaf-1 {
+            top: 15%;
+            left: 10%;
+            font-size: 24px;
+            animation-delay: 0s;
+        }
+
+        .deco-leaf-2 {
+            top: 25%;
+            right: 15%;
+            font-size: 18px;
+            animation-delay: 2s;
+        }
+
+        .deco-leaf-3 {
+            bottom: 30%;
+            left: 8%;
+            font-size: 20px;
+            animation-delay: 4s;
+        }
+
+        @keyframes drift {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translateY(-10px) rotate(10deg);
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 背景装饰 -->
+    <div class="bg-pattern"></div>
+
+    <!-- 装饰叶子 -->
+    <i class="fas fa-leaf deco-leaf deco-leaf-1"></i>
+    <i class="fas fa-seedling deco-leaf deco-leaf-2"></i>
+    <i class="fas fa-leaf deco-leaf deco-leaf-3"></i>
+
+    <!-- 状态栏 -->
+    <div class="status-bar-time">9:41</div>
+    <div class="status-bar-icons">
+        <i class="fas fa-signal"></i>
+        <i class="fas fa-wifi"></i>
+        <i class="fas fa-battery-full"></i>
+    </div>
+
+    <!-- 顶部导航 -->
+    <div class="top-nav">
+        <div class="nav-btn" onclick="history.back()">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="nav-btn">
+            <i class="fas fa-redo-alt"></i>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 食物插图轮播 -->
+        <div class="food-image-container">
+            <img src="../assets/images/西兰花.png" alt="西兰花" class="food-image active" id="foodImg">
+        </div>
+
+        <!-- 进度区域 -->
+        <div class="progress-section">
+            <p class="progress-text">正在为您生成营养方案 <span id="progressPercent">0</span>%</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progressFill">
+                    <div class="progress-bar-glow"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部提示 -->
+    <div class="tip-section">
+        <p class="tip-text" id="tipText">请稍候，AI 正在分析您的健康数据...</p>
+    </div>
+
+    <script>
+        // 食物图片数组（固定顺序）
+        const foodImages = [
+            { src: '../assets/images/西兰花.png', name: '西兰花', tip: '正在分析膳食纤维水平...' },
+            { src: '../assets/images/green_apple.png', name: '苹果', tip: '正在分析您的水果摄入量...' },
+            { src: '../assets/images/番茄.png', name: '番茄', tip: '正在评估您的蔬菜均衡度...' },
+            { src: '../assets/images/牛油果.png', name: '牛油果', tip: '正在计算优质脂肪摄入...' },
+            { src: '../assets/images/羽衣甘蓝.png', name: '羽衣甘蓝', tip: '正在评估营养密度...' }
+        ];
+
+        let currentImageIndex = 0;
+
+        // 切换食物图片（顺序播放）
+        function switchFoodImage() {
+            const foodImg = document.getElementById('foodImg');
+            const tipText = document.getElementById('tipText');
+            
+            // 淡出
+            foodImg.style.opacity = '0';
+            
+            setTimeout(() => {
+                // 按顺序切换到下一张图片
+                currentImageIndex = (currentImageIndex + 1) % foodImages.length;
+                const currentFood = foodImages[currentImageIndex];
+                
+                foodImg.src = currentFood.src;
+                foodImg.alt = currentFood.name;
+                tipText.textContent = currentFood.tip;
+                
+                // 淡入
+                setTimeout(() => {
+                    foodImg.style.opacity = '1';
+                }, 50);
+            }, 500);
+        }
+
+        // 模拟加载进度
+        let progress = 0;
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const totalSteps = 5; // 5张图片
+        const progressPerStep = 100 / totalSteps; // 每次增加20%
+
+        function updateProgress() {
+            if (progress < 100) {
+                progress = Math.min(progress + progressPerStep, 100);
+                
+                progressFill.style.width = progress + '%';
+                progressPercent.textContent = Math.floor(progress);
+            } else {
+                // 加载完成，跳转到报告页
+                setTimeout(() => {
+                    window.location.href = 'report.html';
+                }, 500);
+            }
+        }
+
+        // 启动图片轮播（每2秒切换一次）
+        setInterval(() => {
+            switchFoodImage();
+            updateProgress(); // 同步更新进度条
+        }, 2000);
+        
+        // 初始化第一次进度
+        setTimeout(updateProgress, 500);
+    </script>
+</body>
+
+</html>

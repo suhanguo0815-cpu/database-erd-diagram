@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人营养问卷</title>
+    <link rel="stylesheet" href="../styles/design-system.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --q-bg: #ffffff;
+            --q-card: #ffffff;
+            --q-text: #1C1C1E;
+            --q-sub: #6B7280;
+            --q-line: #E5E7EB;
+            --q-primary: #A1DB67;
+            /* 核心色1: 清新绿 */
+            --q-primary-dark: #6FC86B;
+            /* 核心色2: 稳重绿 */
+            --q-accent: #DFE686;
+            /* 核心色4: 光影黄 */
+            --q-bg-color: #f4fdf6;
+            /* 浅背景 */
+            --q-highlight: rgba(161, 219, 103, 0.3);
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f4fdf6;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(223, 230, 134, 0.2) 0px, transparent 50%),
+                radial-gradient(at 90% 10%, rgba(161, 219, 103, 0.2) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(111, 200, 107, 0.1) 0px, transparent 50%),
+                radial-gradient(at 10% 90%, rgba(220, 229, 184, 0.2) 0px, transparent 50%);
+            background-attachment: fixed;
+            padding-top: 50px;
+            padding-bottom: 28px;
+            min-height: 100vh;
+            color: var(--q-text);
+        }
+
+        .screen {
+            min-height: calc(100vh - 78px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            padding: 0 24px;
+        }
+
+        /* ===== 封面（参考图一） ===== */
+        .cover-header {
+            padding: 10px 20px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .cover-titlebar {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--q-text);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            color: var(--q-text);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .more-icons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .more-icon {
+            color: var(--q-text);
+            font-size: 16px;
+        }
+
+        .cover-content {
+            padding: 20px 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .cover-line {
+            width: 4px;
+            height: 40px;
+            background: linear-gradient(180deg, var(--q-primary) 0%, var(--q-primary-dark) 100%);
+            margin-bottom: 12px;
+            border-radius: 2px;
+        }
+
+        .cover-title-wrapper {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .cover-h1 {
+            font-size: 38px;
+            letter-spacing: 1px;
+            font-weight: 800;
+            color: var(--q-text);
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+
+        .cover-h1.chinese {
+            display: block;
+            text-transform: none;
+        }
+
+        .cover-h1.english {
+            font-size: 14px;
+            letter-spacing: 2px;
+            font-weight: 500;
+            color: #9CA3AF;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        .cover-subtitle {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+            display: none;
+        }
+
+        .cover-bullets {
+            margin-top: 0;
+            color: var(--q-text);
+            font-size: 11px;
+            line-height: 1.5;
+            font-weight: 400;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: none;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .cover-bullets ul {
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .cover-bullets li {
+            margin: 7px 0;
+            position: relative;
+            padding-left: 16px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .cover-bullets li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 5px;
+            height: 5px;
+            background: var(--q-primary);
+            border-radius: 50%;
+        }
+
+        .inline-hl {
+            background: var(--q-highlight);
+            padding: 0 4px;
+            font-weight: 700;
+            box-shadow: inset 0 -8px 0 rgba(118, 251, 145, 0.5);
+        }
+
+        .cover-divider {
+            height: 4px;
+            width: 80px;
+            background: #1C1C1E;
+            margin: 32px 0;
+        }
+
+        .cover-note {
+            color: #666;
+            font-size: 12px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .cover-note div {
+            margin-bottom: 6px;
+        }
+
+        .hero-image-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px 0 12px;
+            overflow: visible;
+            position: relative;
+            min-height: 180px;
+        }
+
+        .hero-image {
+            width: 85%;
+            height: auto;
+            object-fit: contain;
+            max-height: 200px;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .consent-wrapper {
+            margin-top: auto;
+            padding: 20px 24px 0;
+            text-align: center;
+        }
+
+        .consent {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #666;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .consent-link {
+            color: #666;
+            text-decoration: underline;
+        }
+
+        .check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .check.checked {
+            background: var(--q-primary);
+            color: #1C1C1E;
+        }
+
+        .check i {
+            font-size: 10px;
+            display: none;
+        }
+
+        .check.checked i {
+            display: block;
+        }
+
+        .start-btn-wrap {
+            padding: 0 24px 26px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 50px;
+            border: none;
+            background: linear-gradient(to-r, #DCE5B8, #D4E0A9);
+            color: #2F4025;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(161, 219, 103, 0.35);
+            transition: all 0.15s ease;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(161, 219, 103, 0.4);
+        }
+
+        .start-btn:active {
+            transform: scale(0.98);
+        }
+
+        .start-btn:active {
+            transform: scale(0.98);
+        }
+
+        .start-btn[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #e5e5e5;
+            box-shadow: none;
+            color: #999;
+        }
+
+        /* ===== 填写页（参考图二） ===== */
+        .q-top {
+            padding: 12px 24px;
+            background: var(--q-bg);
+        }
+
+        .q-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .q-nav-left {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1C1C1E;
+            cursor: pointer;
+        }
+
+        .q-progress-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .q-progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #E5E5E5;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .q-progress-fill {
+            height: 100%;
+            width: 3%;
+            background: var(--q-primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .q-percent {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1C1C1E;
+            min-width: 32px;
+            text-align: right;
+        }
+
+        .q-content {
+            flex: 1;
+            padding: 40px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .q-title-area {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .q-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .q-help-icon {
+            font-size: 16px;
+            color: #999;
+            border: 1px solid #999;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: help;
+        }
+
+        .options-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .option-btn {
+            background: #FFFFFF;
+            border: none;
+            border-radius: 50px;
+            padding: 18px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #1C1C1E;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--q-primary);
+            background: var(--q-bg-color);
+        }
+
+        .option-btn:active {
+            transform: scale(0.98);
+        }
+
+        .option-btn.selected {
+            background: var(--q-primary-dark);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(111, 200, 107, 0.3);
+            border: none;
+        }
+
+        /* 顶部标题栏的 "基本信息" */
+        .page-indicator {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1C1C1E;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="status-bar-time">19:29</div>
+        <div class="status-bar-icons">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+
+    <!-- ============ 封面（图一） ============ -->
+    <section id="coverScreen" class="screen">
+        <div class="cover-header">
+            <button class="nav-btn" onclick="history.back()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="cover-titlebar">个人营养问卷</div>
+            <div class="more-icons">
+                <i class="fas fa-ellipsis-h more-icon"></i>
+                <i class="fas fa-minus more-icon"></i>
+                <i class="fas fa-bullseye more-icon"></i>
+            </div>
+        </div>
+
+        <div class="cover-content">
+            <div class="cover-line"></div>
+
+            <div class="cover-title-wrapper">
+                <h1 class="cover-h1 chinese">个人营养问卷</h1>
+                <p class="cover-h1 english">Questionnaire</p>
+            </div>
+
+            <div class="cover-bullets">
+                <ul>
+                    <li>填写时间约 3-5 分钟</li>
+                    <li>基于国际常用的营养评估方法(FFOS)</li>
+                    <li>信息仅用于个人营养评估与安全判断</li>
+                    <li>适用于 18 岁及以上成年人</li>
+                    <li>请按真实情况填写</li>
+                </ul>
+            </div>
+
+            <div class="hero-image-wrapper">
+                <img src="../assets/images/green_apple.png" alt="Healthy Food" class="hero-image">
+            </div>
+        </div>
+
+        <div class="start-btn-wrap">
+            <button id="startBtn" class="start-btn">开始答题</button>
+        </div>
+    </section>
+
+    <!-- ============ 填写（图二） ============ -->
+    <section id="questionScreen" class="screen hidden">
+        <div class="page-indicator">基本信息</div>
+        <div class="q-top">
+            <div class="q-top-row">
+                <div class="q-nav-left" id="qBackBtn">
+                    返回
+                </div>
+                <div class="q-progress-container">
+                    <div class="q-progress-bar">
+                        <div class="q-progress-fill" id="qProgressFill"></div>
+                    </div>
+                    <div class="q-percent" id="qPercent">3%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="q-content">
+            <div class="q-title-area">
+                <div class="q-title">
+                    <span id="qTitle">你的年龄?</span>
+                    <div class="q-help-icon" title="说明">?</div>
+                </div>
+            </div>
+
+            <div class="options-list" id="qOptions">
+                <!-- 选项将通过JS动态生成 -->
+                <!-- <button class="option-btn">18-29</button> -->
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // ===== 数据定义 =====
+        const QUESTIONNAIRE_VERSION = 'v1';
+        const STORAGE_KEY = 'questionnaireAnswers';
+
+        const questions = [
+            {
+                id: 'age',
+                section: '基本信息',
+                title: '你的年龄?',
+                options: ['18-29', '30-39', '40-49', '50-64', '65+']
+            },
+            {
+                id: 'gender',
+                section: '基本信息',
+                title: '你的性别?',
+                options: ['男', '女']
+            },
+            {
+                id: 'height',
+                section: '基本信息',
+                title: '你的身高 (cm)?',
+                options: ['< 160', '160-170', '171-180', '> 180']
+            },
+            {
+                id: 'weight',
+                section: '基本信息',
+                title: '你的体重 (kg)?',
+                options: ['< 50', '50-60', '61-70', '71-80', '> 80']
+            },
+            {
+                id: 'goal',
+                section: '目标偏好',
+                title: '你的首要健康目标?',
+                options: ['减脂塑形', '提高免疫力', '改善睡眠', '肠胃健康', '皮肤管理']
+            },
+            {
+                id: 'activity',
+                section: '生活方式',
+                title: '你的日常活动量?',
+                options: ['久坐为主', '轻度活动', '中等活动', '高强度活动']
+            },
+            {
+                id: 'sleep',
+                section: '生活方式',
+                title: '平均睡眠时长?',
+                options: ['< 6小时', '6-7小时', '7-8小时', '> 8小时']
+            },
+            {
+                id: 'veg',
+                section: '饮食习惯',
+                title: '蔬菜摄入频率?',
+                options: ['几乎不吃', '偶尔吃', '每天吃', '每餐都吃']
+            },
+            {
+                id: 'fruit',
+                section: '饮食习惯',
+                title: '水果摄入频率?',
+                options: ['几乎不吃', '偶尔吃', '每天吃']
+            },
+            {
+                id: 'water',
+                section: '饮食习惯',
+                title: '每日饮水量?',
+                options: ['< 4杯', '4-8杯', '> 8杯']
+            }
+        ];
+
+        // ===== 状态管理 =====
+        let currentStep = 0;
+        let userAnswers = {};
+        let isConsentChecked = false;
+
+        // ===== DOM 元素 =====
+        const coverScreen = document.getElementById('coverScreen');
+        const questionScreen = document.getElementById('questionScreen');
+        // const consentLabel = document.getElementById('consentLabel');
+        // const consentCheck = document.getElementById('consentCheck');
+        const startBtn = document.getElementById('startBtn');
+
+        const qBackBtn = document.getElementById('qBackBtn');
+        const pageIndicator = document.querySelector('.page-indicator');
+        const qProgressFill = document.getElementById('qProgressFill');
+        const qPercent = document.getElementById('qPercent');
+        const qTitle = document.getElementById('qTitle');
+        const qOptions = document.getElementById('qOptions');
+
+        // ===== 初始化 =====
+        function init() {
+            // 绑定事件
+            // consentLabel.addEventListener('click', toggleConsent);
+            startBtn.addEventListener('click', startQuestionnaire);
+            qBackBtn.addEventListener('click', handleBack);
+        }
+
+        // ===== 封面逻辑 =====
+        // function toggleConsent(e) {
+        //     e.preventDefault(); // 防止label触发两次点击
+        //     isConsentChecked = !isConsentChecked;
+        //     
+        //     if (isConsentChecked) {
+        //         consentCheck.classList.add('checked');
+        //         startBtn.disabled = false;
+        //     } else {
+        //         consentCheck.classList.remove('checked');
+        //         startBtn.disabled = true;
+        //     }
+        // }
+
+        function startQuestionnaire() {
+            coverScreen.classList.add('hidden');
+            questionScreen.classList.remove('hidden');
+            renderQuestion(0);
+        }
+
+        // ===== 问卷逻辑 =====
+        function renderQuestion(index) {
+            currentStep = index;
+            const q = questions[index];
+            const savedAnswer = userAnswers[q.id];
+
+            // 更新顶部信息
+            pageIndicator.textContent = q.section;
+
+            // 更新进度条
+            const progress = Math.round(((index + 1) / questions.length) * 100);
+            qProgressFill.style.width = `${progress}%`;
+            qPercent.textContent = `${progress}%`;
+
+            // 更新标题
+            qTitle.textContent = q.title;
+
+            // 渲染选项
+            qOptions.innerHTML = '';
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn ${savedAnswer === opt ? 'selected' : ''}`;
+                btn.textContent = opt;
+                btn.onclick = () => handleSelectOption(opt);
+                qOptions.appendChild(btn);
+            });
+        }
+
+        function handleSelectOption(option) {
+            const q = questions[currentStep];
+            userAnswers[q.id] = option;
+
+            // 视觉反馈选中状态
+            const buttons = qOptions.querySelectorAll('.option-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent === option) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+
+            // 延迟跳转下一题
+            setTimeout(() => {
+                if (currentStep < questions.length - 1) {
+                    renderQuestion(currentStep + 1);
+                } else {
+                    finishQuestionnaire();
+                }
+            }, 300);
+        }
+
+        function handleBack() {
+            if (currentStep > 0) {
+                renderQuestion(currentStep - 1);
+            } else {
+                // 返回封面
+                questionScreen.classList.add('hidden');
+                coverScreen.classList.remove('hidden');
+            }
+        }
+
+        function finishQuestionnaire() {
+            // 保存答案到本地存储
+            const payload = {
+                version: QUESTIONNAIRE_VERSION,
+                date: new Date().toISOString(),
+                answers: userAnswers
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+
+            // 标记用户已完成问卷（表示不是新用户了）
+            localStorage.setItem('hasCompletedQuestionnaire', 'true');
+            
+            // TODO: 实际项目中应该调用后端接口保存问卷数据
+            // await fetch('/api/questionnaire/submit', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(payload)
+            // });
+
+            // 跳转到计算页
+            window.location.href = 'calculating.html';
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+
+</html>

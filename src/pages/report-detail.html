@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>详细报告</title>
+    <link rel="stylesheet" href="../styles/design-system.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f4fdf6;
+            padding-top: 50px;
+            padding-bottom: 120px;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .page-container {
+            padding: 0 20px 40px;
+        }
+
+        /* 顶部导航 */
+        .page-header {
+            padding: 8px 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1C1C1E;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #1C1C1E;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        /* 统一卡片样式 */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f0f0f0;
+            margin-bottom: 16px;
+        }
+
+        /* BMI卡片 */
+        .bmi-card {
+            padding: 24px;
+        }
+
+        .bmi-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 24px;
+        }
+
+        .bmi-section {
+            margin-bottom: 24px;
+        }
+
+        .bmi-label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #6B7280;
+            margin-bottom: 12px;
+        }
+
+        .bmi-value-wrapper {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+        }
+
+        .bmi-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #DFE686;
+            border-radius: 24px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1C1C1E;
+        }
+
+        .bmi-chart {
+            width: 100%;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 999px;
+            position: relative;
+            margin-top: 12px;
+        }
+
+        .bmi-marker {
+            position: absolute;
+            width: 4px;
+            height: 16px;
+            background: #DFE686;
+            border-radius: 2px;
+            top: -4px;
+            left: 60%;
+            transform: translateX(-50%);
+        }
+
+        .bmi-description {
+            font-size: 14px;
+            color: #6B7280;
+            line-height: 1.6;
+            margin-top: 12px;
+        }
+
+        /* 维度详情 */
+        .dimensions-card {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+        }
+
+        .dimension-item {
+            margin-bottom: 20px;
+        }
+
+        .dimension-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .dimension-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .dimension-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1C1C1E;
+        }
+
+        .dimension-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1C1C1E;
+        }
+
+        .dimension-bar {
+            width: 100%;
+            height: 8px;
+            background: #f5f5f5;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .dimension-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.6s ease;
+        }
+
+        /* 建议卡片 */
+        .advice-card {
+            padding: 24px;
+        }
+
+        .advice-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+        }
+
+        .advice-item {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .advice-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .advice-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+
+        .advice-content {
+            font-size: 14px;
+            color: #6B7280;
+            line-height: 1.7;
+        }
+
+        /* 底部按钮 */
+        .bottom-actions {
+            position: fixed;
+            bottom: 34px;
+            left: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);
+            border: none;
+            font-weight: 600;
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(111, 200, 107, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="status-bar-time">19:29</div>
+        <div class="status-bar-icons">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+
+    <!-- 顶部导航 -->
+    <div class="page-header">
+        <button class="back-btn" onclick="history.back()">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="page-title">详细报告</div>
+        <div style="width: 36px;"></div>
+    </div>
+
+    <!-- 页面内容 -->
+    <div class="page-container">
+
+        <!-- BMI卡片 -->
+        <div class="card bmi-card">
+            <h2 class="bmi-title">靓仔的个人营养报告</h2>
+            
+            <div class="bmi-section">
+                <div class="bmi-label">BMI 指数</div>
+                <div class="bmi-value-wrapper">
+                    <span class="bmi-badge">24.3</span>
+                </div>
+                <div class="bmi-chart">
+                    <div class="bmi-marker"></div>
+                </div>
+                <p class="bmi-description">
+                    你的身体质量指数BMI=24.3 kg/m2，属于超重，增加了患脂肪肝、糖尿病及其他慢性病的风险。均衡饮食 + 合理运动是控制体重的唯一健康有效的方式。
+                </p>
+            </div>
+        </div>
+
+        <!-- 健康维度详情卡片 -->
+        <div class="card dimensions-card">
+            <h3 class="card-title">健康维度详情</h3>
+            
+            <!-- 饮食 -->
+            <div class="dimension-item">
+                <div class="dimension-header">
+                    <span class="dimension-label">饮食质量</span>
+                    <span class="dimension-value">59分</span>
+                </div>
+                <div class="dimension-bar">
+                    <div class="dimension-bar-fill" style="width: 59%; background: #f59e0b;"></div>
+                </div>
+            </div>
+
+            <!-- 作息 -->
+            <div class="dimension-item">
+                <div class="dimension-header">
+                    <span class="dimension-label">作息规律</span>
+                    <span class="dimension-value">68分</span>
+                </div>
+                <div class="dimension-bar">
+                    <div class="dimension-bar-fill" style="width: 68%; background: #DFE686;"></div>
+                </div>
+            </div>
+
+            <!-- 运动 -->
+            <div class="dimension-item">
+                <div class="dimension-header">
+                    <span class="dimension-label">运动状况</span>
+                    <span class="dimension-value">30分</span>
+                </div>
+                <div class="dimension-bar">
+                    <div class="dimension-bar-fill" style="width: 30%; background: #ef4444;"></div>
+                </div>
+            </div>
+
+            <!-- 心理 -->
+            <div class="dimension-item">
+                <div class="dimension-header">
+                    <span class="dimension-label">心理状态</span>
+                    <span class="dimension-value">100分</span>
+                </div>
+                <div class="dimension-bar">
+                    <div class="dimension-bar-fill" style="width: 100%; background: #A1DB67;"></div>
+                </div>
+            </div>
+
+            <!-- 体质 -->
+            <div class="dimension-item">
+                <div class="dimension-header">
+                    <span class="dimension-label">身体体质</span>
+                    <span class="dimension-value">84分</span>
+                </div>
+                <div class="dimension-bar">
+                    <div class="dimension-bar-fill" style="width: 84%; background: #A1DB67;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 饮食建议卡片 -->
+        <div class="card advice-card">
+            <h3 class="advice-title">饮食建议</h3>
+            
+            <div class="advice-item">
+                <div class="advice-number">01 一天不要超过三杯美式咖啡</div>
+                <p class="advice-content">
+                    健康成年人每天摄入的咖啡因应控制在400mg以内。1杯355mL的小杯美式咖啡，所含咖啡因为150mg，所以一天最好不要饮用超过3小杯咖啡。
+                </p>
+            </div>
+
+            <div class="advice-item">
+                <div class="advice-number">02 每天至少食用一次豆制品</div>
+                <p class="advice-content">
+                    饮食中可以适量增加豆类食物的摄入。豆制品中富含蛋白质、不饱和脂肪酸和钙等。大豆中的碳水化合物近半是膳食纤维，可以促进肠胃蠕动。
+                </p>
+            </div>
+
+            <div class="advice-item">
+                <div class="advice-number">03 适量食用水果有益提高免疫力</div>
+                <p class="advice-content">
+                    中国居民膳食指南建议每天摄入200-350g水果，水果富含维生素C、维生素B、钾、镁等营养，可促进新陈代谢、增强免疫力。
+                </p>
+            </div>
+
+            <div class="advice-item">
+                <div class="advice-number">04 每周至少食用3次海鱼</div>
+                <p class="advice-content">
+                    多食用富含Omega-3的海鱼（如三文鱼、沙丁鱼），因其不饱和脂肪酸含量高于淡水鱼，有助于心脑血管健康和脑力提升。
+                </p>
+            </div>
+
+            <div class="advice-item">
+                <div class="advice-number">05 维C缺乏可以通过饮食或补剂补充</div>
+                <p class="advice-content">
+                    请在饮食中增加维生素C含量高的食物，比如新鲜的蔬菜水果，例如橘子、柠檬、土豆、绿叶菜等，或者选择额外补充维生素C补剂。
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 底部操作按钮 -->
+    <div class="bottom-actions">
+        <button class="btn-primary" onclick="viewPreferences()">设置服务偏好</button>
+    </div>
+
+    <script>
+        function viewPreferences() {
+            window.location.href = 'service-preferences.html';
+        }
+    </script>
+
+</body>
+
+</html>
+

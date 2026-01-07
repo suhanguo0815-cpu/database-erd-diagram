@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 营养师小程序 - 高保真原型展示</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* iPhone 15 Pro Frame Simulation */
+        .iphone-frame {
+            width: 393px;
+            height: 852px;
+            background-color: #000;
+            border-radius: 55px;
+            box-shadow: 
+                0 0 0 4px #333, /* Bezel */
+                0 0 0 8px #555, /* Titanium frame */
+                0 20px 50px rgba(0,0,0,0.5); /* Drop shadow */
+            position: relative;
+            overflow: hidden;
+            margin: 20px auto;
+            border: 8px solid #4a4a4a; /* Simulating the metallic edge */
+        }
+
+        /* Dynamic Island */
+        .dynamic-island {
+            width: 120px;
+            height: 35px;
+            background-color: #000;
+            border-radius: 20px;
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+        }
+
+        /* Screen Content */
+        .screen-content {
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            border-radius: 46px; /* Slightly less than frame */
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .label {
+            text-align: center;
+            margin-top: 10px;
+            color: #999;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body class="p-10">
+    <header class="mb-10 text-center">
+        <h1 class="text-3xl font-bold mb-2">AI 营养师小程序 - 高保真原型</h1>
+        <p class="text-gray-400">基于 iPhone 15 Pro (393x852) 尺寸设计</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-12 justify-center">
+        
+        <!-- 1.1 Login -->
+        <div class="flex flex-col items-center">
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="screen-content">
+                    <iframe src="pages/login.html"></iframe>
+                </div>
+            </div>
+            <div class="label">1.1 身份激活 (Login)</div>
+        </div>
+
+        <!-- 1.2 Questionnaire -->
+        <div class="flex flex-col items-center">
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="screen-content">
+                    <iframe src="pages/questionnaire.html"></iframe>
+                </div>
+            </div>
+            <div class="label">1.2 深度评估 (Questionnaire)</div>
+        </div>
+
+        <!-- 1.3 Calculating -->
+        <div class="flex flex-col items-center">
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="screen-content">
+                    <iframe src="pages/calculating.html"></iframe>
+                </div>
+            </div>
+            <div class="label">1.3 方案定制 (Calculating)</div>
+        </div>
+
+        <!-- 1.4 Report -->
+        <div class="flex flex-col items-center">
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="screen-content">
+                    <iframe src="pages/report.html"></iframe>
+                </div>
+            </div>
+            <div class="label">1.4 健康报告封面 (Report)</div>
+        </div>
+
+        <!-- 1.5 Report Detail -->
+        <div class="flex flex-col items-center">
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="screen-content">
+                    <iframe src="pages/report-detail.html"></iframe>
+                </div>
+            </div>
+            <div class="label">1.5 详细报告 (Report Detail)</div>
+        </div>
+
+        <!-- 2.1 Home (Today) -->
+        <div class="flex flex-col items-center">
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="screen-content">
+                    <iframe src="pages/home.html"></iframe>
+                </div>
+            </div>
+            <div class="label">2.1 今日 (Home)</div>
+        </div>
+
+        <!-- 2.2 Plan -->
+        <div class="flex flex-col items-center">
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="screen-content">
+                    <iframe src="pages/plan.html"></iframe>
+                </div>
+            </div>
+            <div class="label">2.2 计划 (Plan)</div>
+        </div>
+
+        <!-- 2.3 Wiki -->
+        <div class="flex flex-col items-center">
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="screen-content">
+                    <iframe src="pages/wiki.html"></iframe>
+                </div>
+            </div>
+            <div class="label">2.3 百科 (Wiki)</div>
+        </div>
+
+        <!-- 2.4 Profile -->
+        <div class="flex flex-col items-center">
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="screen-content">
+                    <iframe src="pages/profile.html"></iframe>
+                </div>
+            </div>
+            <div class="label">2.4 我的 (Profile)</div>
+        </div>
+
+        <!-- 2.5 Service Preferences -->
+        <div class="flex flex-col items-center">
+            <div class="iphone-frame">
+                <div class="dynamic-island"></div>
+                <div class="screen-content">
+                    <iframe src="pages/service-preferences.html"></iframe>
+                </div>
+            </div>
+            <div class="label">2.5 服务偏好设置 (Service Preferences)</div>
+        </div>
+
+    </div>
+</body>
+</html>

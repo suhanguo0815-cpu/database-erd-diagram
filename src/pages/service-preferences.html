@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务偏好设置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f4fdf6',
+                            100: '#DCE5B8',
+                            200: '#cbf9d8',
+                            300: '#A1DB67',
+                            400: '#86efac',
+                            500: '#6FC86B',
+                            600: '#5ce582',
+                            700: '#42d073',
+                            800: '#2ab65c',
+                        },
+                        accent: {
+                            yellow: '#DFE686',
+                            lime: '#DFE686',
+                            green: '#A1DB67',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background: #f4fdf6;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(223, 230, 134, 0.2) 0px, transparent 50%),
+                radial-gradient(at 90% 10%, rgba(161, 219, 103, 0.2) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(111, 200, 107, 0.1) 0px, transparent 50%),
+                radial-gradient(at 10% 90%, rgba(220, 229, 184, 0.2) 0px, transparent 50%);
+            background-attachment: fixed;
+            padding-top: 50px;
+            padding-bottom: 34px;
+            min-height: 100vh;
+        }
+
+        .status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 100;
+            background: rgba(244, 253, 246, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .status-bar-time {
+            font-weight: 600;
+            font-size: 15px;
+            color: #000;
+        }
+
+        .status-bar-icons {
+            display: flex;
+            gap: 6px;
+            color: #000;
+            font-size: 14px;
+        }
+
+        .preference-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .preference-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .preference-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .preference-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .preference-item:first-child {
+            padding-top: 0;
+        }
+
+        .preference-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .preference-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .preference-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preference-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .preference-desc {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* 开关样式 */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            display: none;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e5e7eb;
+            border-radius: 14px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        /* 时间选择器 */
+        .time-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .time-selector:hover {
+            background: #DCE5B8;
+            color: #2ab65c;
+            transform: translateX(2px);
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 24px 0 12px 20px;
+        }
+
+        .save-btn {
+            position: fixed;
+            bottom: 34px;
+            left: 20px;
+            right: 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(111, 200, 107, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .save-btn:hover {
+            box-shadow: 0 6px 20px rgba(111, 200, 107, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .save-btn:active {
+            transform: scale(0.98) translateY(0);
+        }
+
+        .save-btn.success {
+            background: #6FC86B;
+        }
+
+    </style>
+</head>
+
+<body class="h-screen relative overflow-y-auto">
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="status-bar-time">9:41</div>
+        <div class="status-bar-icons">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+
+    <div class="px-6 pt-2 pb-24">
+        <!-- 顶部导航 -->
+        <div class="flex justify-between items-center mb-6">
+            <button onclick="history.back()" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors">
+                <i class="fas fa-chevron-left text-lg"></i>
+            </button>
+            <h1 class="text-xl font-bold text-gray-900 tracking-tight">服务偏好设置</h1>
+            <div class="w-8"></div>
+        </div>
+
+        <!-- 打卡提醒 -->
+        <div class="section-title">打卡提醒</div>
+        <div class="preference-card">
+            <div class="preference-item">
+                <div class="preference-label">
+                    <div class="preference-icon" style="background: linear-gradient(135deg, #DFE686 0%, #A1DB67 100%);">
+                        <i class="fas fa-weight" style="color: white;"></i>
+                    </div>
+                    <div class="preference-text">
+                        <div class="preference-title">体重打卡提醒</div>
+                        <div class="preference-desc">每日提醒记录体重</div>
+                    </div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="weightReminder" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="preference-item" id="weightTimeSection">
+                <div class="preference-label">
+                    <div style="width: 40px;"></div>
+                    <div class="preference-text">
+                        <div class="preference-title">提醒时间</div>
+                    </div>
+                </div>
+                <div class="time-selector" onclick="selectTime('weightTime')">
+                    <i class="far fa-clock"></i>
+                    <span id="weightTime">07:00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 饮食提醒 -->
+        <div class="section-title">饮食提醒</div>
+        <div class="preference-card">
+            <div class="preference-item">
+                <div class="preference-label">
+                    <div class="preference-icon" style="background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);">
+                        <i class="fas fa-tint" style="color: white;"></i>
+                    </div>
+                    <div class="preference-text">
+                        <div class="preference-title">喝水提醒</div>
+                        <div class="preference-desc">每日多次提醒喝水</div>
+                    </div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="waterReminder" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="preference-item" id="waterTimeSection">
+                <div class="preference-label">
+                    <div style="width: 40px;"></div>
+                    <div class="preference-text">
+                        <div class="preference-title">提醒频率</div>
+                    </div>
+                </div>
+                <div class="time-selector">
+                    <span>每 2 小时</span>
+                </div>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-label">
+                    <div class="preference-icon" style="background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);">
+                        <i class="fas fa-utensils" style="color: white;"></i>
+                    </div>
+                    <div class="preference-text">
+                        <div class="preference-title">三餐提醒</div>
+                        <div class="preference-desc">早中晚三餐时间提醒</div>
+                    </div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="mealReminder" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="preference-item" id="breakfastTimeSection">
+                <div class="preference-label">
+                    <div style="width: 40px;"></div>
+                    <div class="preference-text">
+                        <div class="preference-title">早餐时间</div>
+                    </div>
+                </div>
+                <div class="time-selector" onclick="selectTime('breakfastTime')">
+                    <i class="far fa-clock"></i>
+                    <span id="breakfastTime">08:00</span>
+                </div>
+            </div>
+            <div class="preference-item" id="lunchTimeSection">
+                <div class="preference-label">
+                    <div style="width: 40px;"></div>
+                    <div class="preference-text">
+                        <div class="preference-title">午餐时间</div>
+                    </div>
+                </div>
+                <div class="time-selector" onclick="selectTime('lunchTime')">
+                    <i class="far fa-clock"></i>
+                    <span id="lunchTime">12:00</span>
+                </div>
+            </div>
+            <div class="preference-item" id="dinnerTimeSection">
+                <div class="preference-label">
+                    <div style="width: 40px;"></div>
+                    <div class="preference-text">
+                        <div class="preference-title">晚餐时间</div>
+                    </div>
+                </div>
+                <div class="time-selector" onclick="selectTime('dinnerTime')">
+                    <i class="far fa-clock"></i>
+                    <span id="dinnerTime">18:30</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 运动与补剂 -->
+        <div class="section-title">运动与补剂</div>
+        <div class="preference-card">
+            <div class="preference-item">
+                <div class="preference-label">
+                    <div class="preference-icon" style="background: linear-gradient(135deg, #6FC86B 0%, #42d073 100%);">
+                        <i class="fas fa-running" style="color: white;"></i>
+                    </div>
+                    <div class="preference-text">
+                        <div class="preference-title">运动提醒</div>
+                        <div class="preference-desc">每日提醒运动打卡</div>
+                    </div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="exerciseReminder" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="preference-item" id="exerciseTimeSection">
+                <div class="preference-label">
+                    <div style="width: 40px;"></div>
+                    <div class="preference-text">
+                        <div class="preference-title">提醒时间</div>
+                    </div>
+                </div>
+                <div class="time-selector" onclick="selectTime('exerciseTime')">
+                    <i class="far fa-clock"></i>
+                    <span id="exerciseTime">19:00</span>
+                </div>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-label">
+                    <div class="preference-icon" style="background: linear-gradient(135deg, #DCE5B8 0%, #A1DB67 100%);">
+                        <i class="fas fa-pills" style="color: white;"></i>
+                    </div>
+                    <div class="preference-text">
+                        <div class="preference-title">补剂服用提醒</div>
+                        <div class="preference-desc">根据方案自动提醒</div>
+                    </div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="supplementReminder" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- 说明 -->
+        <div class="px-4 py-6 text-center text-xs text-gray-400">
+            所有设置修改后立即生效
+        </div>
+    </div>
+
+    <!-- 保存按钮 -->
+    <button class="save-btn" onclick="savePreferences()">
+        <i class="fas fa-check mr-2"></i>保存设置
+    </button>
+
+    <script>
+        // 从 localStorage 加载设置
+        function loadPreferences() {
+            const saved = localStorage.getItem('servicePreferences');
+            if (saved) {
+                const prefs = JSON.parse(saved);
+                
+                // 恢复开关状态
+                document.getElementById('weightReminder').checked = prefs.weightReminder !== false;
+                document.getElementById('waterReminder').checked = prefs.waterReminder !== false;
+                document.getElementById('mealReminder').checked = prefs.mealReminder !== false;
+                document.getElementById('exerciseReminder').checked = prefs.exerciseReminder !== false;
+                document.getElementById('supplementReminder').checked = prefs.supplementReminder !== false;
+                
+                // 恢复时间设置
+                if (prefs.weightTime) document.getElementById('weightTime').textContent = prefs.weightTime;
+                if (prefs.breakfastTime) document.getElementById('breakfastTime').textContent = prefs.breakfastTime;
+                if (prefs.lunchTime) document.getElementById('lunchTime').textContent = prefs.lunchTime;
+                if (prefs.dinnerTime) document.getElementById('dinnerTime').textContent = prefs.dinnerTime;
+                if (prefs.exerciseTime) document.getElementById('exerciseTime').textContent = prefs.exerciseTime;
+            }
+        }
+
+        // 保存设置
+        function savePreferences() {
+            const prefs = {
+                weightReminder: document.getElementById('weightReminder').checked,
+                weightTime: document.getElementById('weightTime').textContent,
+                waterReminder: document.getElementById('waterReminder').checked,
+                mealReminder: document.getElementById('mealReminder').checked,
+                breakfastTime: document.getElementById('breakfastTime').textContent,
+                lunchTime: document.getElementById('lunchTime').textContent,
+                dinnerTime: document.getElementById('dinnerTime').textContent,
+                exerciseReminder: document.getElementById('exerciseReminder').checked,
+                exerciseTime: document.getElementById('exerciseTime').textContent,
+                supplementReminder: document.getElementById('supplementReminder').checked,
+                updatedAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('servicePreferences', JSON.stringify(prefs));
+            
+            // 显示保存成功提示
+            const btn = document.querySelector('.save-btn');
+            const originalText = btn.innerHTML;
+            btn.classList.add('success');
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i>保存成功';
+            
+            setTimeout(() => {
+                btn.classList.remove('success');
+                btn.innerHTML = originalText;
+            }, 1500);
+        }
+
+        // 时间选择器（简化版，实际项目中可使用专业的时间选择插件）
+        function selectTime(elementId) {
+            const currentTime = document.getElementById(elementId).textContent;
+            const newTime = prompt('请输入时间（格式：HH:MM）', currentTime);
+            
+            if (newTime && /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(newTime)) {
+                document.getElementById(elementId).textContent = newTime;
+            } else if (newTime) {
+                alert('时间格式不正确，请使用 HH:MM 格式');
+            }
+        }
+
+        // 监听开关变化，实时更新相关项目的显示/隐藏
+        document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                // 实时保存设置
+                savePreferences();
+            });
+        });
+
+        // 页面加载时恢复设置
+        loadPreferences();
+    </script>
+</body>
+
+</html>
+
+
+
+

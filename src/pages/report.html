@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康报告</title>
+    <link rel="stylesheet" href="../styles/design-system.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f4fdf6;
+            padding-top: 50px;
+            padding-bottom: 120px;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .page-container {
+            padding: 0 20px 40px;
+        }
+
+        /* 顶部导航 */
+        .page-header {
+            padding: 8px 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1C1C1E;
+        }
+
+        .back-btn,
+        .more-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #1C1C1E;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        /* 统一卡片样式 */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f0f0f0;
+            margin-bottom: 16px;
+        }
+
+        /* 问候卡片 */
+        .greeting-card {
+            padding: 20px;
+        }
+
+        .greeting-share {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(161, 219, 103, 0.15);
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .greeting-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 16px;
+        }
+
+        .score-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .score-label {
+            font-size: 15px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+
+        .score-number {
+            font-size: 56px;
+            font-weight: 700;
+            color: #1C1C1E;
+            line-height: 1;
+        }
+
+        .score-total {
+            font-size: 20px;
+            color: #9ca3af;
+            margin-left: 4px;
+        }
+
+        .score-note {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 8px;
+        }
+
+        /* 雷达图 */
+        .radar-chart-wrapper {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .radar-chart {
+            position: relative;
+            width: 320px;
+            height: 320px;
+        }
+
+        /* 改善目标 */
+        .goals-section {
+            padding: 20px;
+        }
+
+        .goals-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+
+        .goals-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .goal-tag {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1.5px solid #d1d5db;
+            background: white;
+            color: #4b5563;
+        }
+
+        .primary-goal-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .primary-goal-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1C1C1E;
+        }
+
+        .goal-tag.primary {
+            background: #1C1C1E;
+            color: white;
+            border: none;
+        }
+
+        /* 底部按钮 */
+        .bottom-actions {
+            position: fixed;
+            bottom: 34px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .btn-outline {
+            flex: 0 0 120px;
+            padding: 16px;
+            border-radius: 50px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            font-weight: 600;
+            font-size: 15px;
+            color: #1f2937;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 16px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);
+            border: none;
+            font-weight: 600;
+            font-size: 15px;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(111, 200, 107, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="status-bar-time">19:29</div>
+        <div class="status-bar-icons">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+
+    <!-- 顶部导航 -->
+    <div class="page-header">
+        <button class="back-btn" onclick="history.back()">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="page-title">AI营养师</div>
+        <button class="more-btn">
+            <i class="fas fa-ellipsis-h"></i>
+        </button>
+    </div>
+
+    <!-- 页面内容 -->
+    <div class="page-container">
+
+        <!-- 问候和评分卡片 -->
+        <div class="card greeting-card">
+
+
+            <h1 class="greeting-title">Hi 靓仔</h1>
+
+            <div class="score-row">
+                <span class="score-label">你的健康测评综合得分：</span>
+                <span class="score-number">68</span>
+                <span class="score-total">/100</span>
+            </div>
+
+            <p class="score-note">* 报告结果基于FFQ营养测评和4大维度专业健康评估</p>
+        </div>
+
+        <!-- 雷达图卡片 -->
+        <div class="card">
+            <div class="radar-chart-wrapper">
+                <div class="radar-chart">
+                    <svg width="100%" height="100%" viewBox="0 0 400 380">
+                        <!-- 背景五边形 (3层) -->
+                        <polygon points="200,50 300,110 280,270 120,270 100,110" fill="none" stroke="#f3f4f6"
+                            stroke-width="2" />
+                        <polygon points="200,90 260,130 250,230 150,230 140,130" fill="none" stroke="#f3f4f6"
+                            stroke-width="2" />
+                        <polygon points="200,130 220,150 215,190 185,190 180,150" fill="none" stroke="#f3f4f6"
+                            stroke-width="2" />
+
+                        <!-- 数据多边形 - 使用绿色 -->
+                        <polygon points="200,100 260,125 290,265 140,270 125,125" fill="rgba(161, 219, 103, 0.3)"
+                            stroke="#A1DB67" stroke-width="3" />
+
+                        <!-- 数据点 -->
+                        <circle cx="200" cy="100" r="5" fill="#6FC86B" />
+                        <circle cx="260" cy="125" r="5" fill="#6FC86B" />
+                        <circle cx="290" cy="265" r="5" fill="#6FC86B" />
+                        <circle cx="140" cy="270" r="5" fill="#6FC86B" />
+                        <circle cx="125" cy="125" r="5" fill="#6FC86B" />
+
+                        <!-- 标签和分数（上方-炎症风险） -->
+                        <text x="200" y="30" text-anchor="middle" style="font-size: 13px; font-weight: 600; fill: #374151;">炎症风险</text>
+                        <text x="200" y="45" text-anchor="middle" style="font-size: 12px; font-weight: 600; fill: #6B7280;">59</text>
+
+                        <!-- 标签和分数（右上-生活习惯风险） -->
+                        <text x="310" y="110" text-anchor="start" style="font-size: 13px; font-weight: 600; fill: #374151;">生活习惯风险</text>
+                        <text x="310" y="125" text-anchor="start" style="font-size: 12px; font-weight: 600; fill: #6B7280;">68</text>
+
+                        <!-- 标签和分数（右下-营养结构风险） -->
+                        <text x="310" y="270" text-anchor="start" style="font-size: 13px; font-weight: 600; fill: #374151;">营养结构风险</text>
+                        <text x="310" y="285" text-anchor="start" style="font-size: 12px; font-weight: 600; fill: #6B7280;">30</text>
+
+                        <!-- 标签和分数（左下-BMI风险） -->
+                        <text x="90" y="270" text-anchor="end" style="font-size: 13px; font-weight: 600; fill: #374151;">BMI风险</text>
+                        <text x="90" y="285" text-anchor="end" style="font-size: 12px; font-weight: 600; fill: #6B7280;">100</text>
+
+                        <!-- 标签和分数（左上-代谢风险） -->
+                        <text x="90" y="110" text-anchor="end" style="font-size: 13px; font-weight: 600; fill: #374151;">代谢风险</text>
+                        <text x="90" y="125" text-anchor="end" style="font-size: 12px; font-weight: 600; fill: #6B7280;">84</text>
+
+                        <!-- 中心分数 -->
+                        <text x="200" y="200" text-anchor="middle" style="font-size: 48px; font-weight: 700; fill: #1C1C1E;">68</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 改善目标卡片 -->
+        <div class="card goals-section">
+            <h3 class="goals-title">本次改善目标：</h3>
+            <div class="goals-tags">
+                <span class="goal-tag">身材管理</span>
+                <span class="goal-tag">眼睛/视力</span>
+            </div>
+            <div class="primary-goal-wrapper">
+                <span class="primary-goal-label">首要目标：</span>
+                <span class="goal-tag primary">
+                    <i class="fas fa-dumbbell" style="margin-right: 6px;"></i>
+                    身材管理
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 底部操作按钮 -->
+    <div class="bottom-actions">
+        <button class="btn-outline" onclick="viewDetail()">详细报告</button>
+        <button class="btn-primary" onclick="viewPreferences()">设置服务偏好</button>
+    </div>
+
+    <script>
+        function viewDetail() {
+            window.location.href = 'report-detail.html';
+        }
+
+        function viewPreferences() {
+            window.location.href = 'service-preferences.html';
+        }
+    </script>
+
+</body>
+
+</html>

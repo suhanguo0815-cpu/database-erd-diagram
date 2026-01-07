@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计划</title>
+    <link rel="stylesheet" href="../styles/design-system.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f4fdf6',
+                            100: '#DCE5B8',
+                            200: '#cbf9d8',
+                            300: '#A1DB67',
+                            400: '#86efac',
+                            500: '#6FC86B',
+                            600: '#5ce582',
+                            700: '#42d073',
+                            800: '#2ab65c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        /* @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap'); */
+        /* Font imported in design-system.css */
+
+        body {
+            /* font-family: 'Outfit', -apple-system, sans-serif; */
+            /* Global background from design-system.css */
+            padding-top: 50px;
+            padding-bottom: 120px;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .status-bar-time {
+            position: absolute;
+            top: 14px;
+            left: 30px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #000;
+        }
+
+        .status-bar-icons {
+            position: absolute;
+            top: 14px;
+            right: 30px;
+            display: flex;
+            gap: 6px;
+            color: #000;
+            font-size: 14px;
+        }
+
+        .tab-bar {
+            position: fixed;
+            bottom: 34px;
+            left: 20px;
+            right: 20px;
+            height: 76px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #9ca3af;
+            font-size: 13px;
+            font-weight: 500;
+            gap: 6px;
+        }
+
+        .tab-item i {
+            font-size: 24px;
+        }
+
+        .tab-item.active {
+            color: #6FC86B;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+            margin-bottom: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 趋势图样式 */
+        .trend-chart {
+            position: relative;
+            height: 80px;
+            margin-top: 12px;
+        }
+
+        .trend-line {
+            stroke: #76FB91;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .trend-area {
+            fill: url(#trendGradient);
+            opacity: 0.3;
+        }
+
+        .trend-point {
+            fill: #76FB91;
+            stroke: white;
+            stroke-width: 2;
+        }
+
+        /* 柱状图样式 */
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bar-item:hover {
+            transform: translateX(4px);
+        }
+
+        .bar-label {
+            width: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1C1C1E;
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 24px;
+            background: #f3f4f6;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.6s ease;
+            position: relative;
+        }
+
+        .bar-fill.sufficient {
+            background: linear-gradient(90deg, #76FB91 0%, #5CE582 100%);
+        }
+
+        .bar-fill.insufficient {
+            background: linear-gradient(90deg, #d1d5db 0%, #9ca3af 100%);
+        }
+
+        .bar-fill.deficient {
+            background: linear-gradient(90deg, #e5e7eb 0%, #d1d5db 100%);
+        }
+
+        .bar-value {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .bar-target {
+            width: 60px;
+            text-align: right;
+            font-size: 12px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+
+        /* 详情弹窗 */
+        .detail-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+            padding: 24px;
+            z-index: 1000;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+
+        .detail-modal.show {
+            transform: translateY(0);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen relative overflow-y-auto">
+
+    <div class="status-bar-time">9:41</div>
+    <div class="status-bar-icons">
+        <i class="fas fa-signal"></i>
+        <i class="fas fa-wifi"></i>
+        <i class="fas fa-battery-full"></i>
+    </div>
+
+    <div class="px-6 mb-6 pt-2">
+        <h1 class="text-3xl font-bold text-gray-900 mb-5 tracking-tight">计划追踪</h1>
+        <div class="bg-gray-100 p-1.5 rounded-2xl flex text-sm font-semibold">
+            <button class="flex-1 bg-white shadow-md py-3 rounded-xl text-gray-900 transition-all">本周</button>
+            <button class="flex-1 text-gray-500 py-3 rounded-xl transition-all hover:text-gray-700">本月</button>
+        </div>
+    </div>
+
+    <div class="px-5">
+
+        <!-- 平均评分趋势 -->
+        <div class="card mb-5">
+            <div class="flex justify-between items-center mb-2">
+                <div class="text-gray-500 text-sm font-medium">平均评分</div>
+                <div class="text-xs text-gray-400">近7天</div>
+            </div>
+            <div class="text-4xl font-bold text-gray-900 tracking-tight mb-1">8.2 <span
+                    class="text-base font-semibold text-primary-600">↑ 0.2</span></div>
+            <div class="trend-chart">
+                <svg width="100%" height="80" viewBox="0 0 300 80" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="trendGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#76FB91;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#76FB91;stop-opacity:0" />
+                        </linearGradient>
+                    </defs>
+                    <!-- 趋势区域 -->
+                    <path id="trendArea" class="trend-area"
+                        d="M0,60 L50,55 L100,50 L150,48 L200,45 L250,42 L300,40 L300,80 L0,80 Z" />
+                    <!-- 趋势线 -->
+                    <path id="trendLine" class="trend-line" d="M0,60 L50,55 L100,50 L150,48 L200,45 L250,42 L300,40" />
+                    <!-- 数据点 -->
+                    <circle class="trend-point" cx="0" cy="60" r="3" />
+                    <circle class="trend-point" cx="50" cy="55" r="3" />
+                    <circle class="trend-point" cx="100" cy="50" r="3" />
+                    <circle class="trend-point" cx="150" cy="48" r="3" />
+                    <circle class="trend-point" cx="200" cy="45" r="3" />
+                    <circle class="trend-point" cx="250" cy="42" r="3" />
+                    <circle class="trend-point" cx="300" cy="40" r="4" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- 微量元素缺口 -->
+        <div class="card">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="font-bold text-gray-900">微量元素缺口</h3>
+                <div class="text-xs text-gray-400">点击查看详情</div>
+            </div>
+            <div class="bar-chart">
+                <div class="bar-item" onclick="showDetail('镁', 85, 100, 'sufficient')">
+                    <div class="bar-label">镁</div>
+                    <div class="bar-container">
+                        <div class="bar-fill sufficient" style="width: 85%;">
+                            <div class="bar-value">85%</div>
+                        </div>
+                    </div>
+                    <div class="bar-target">100mg</div>
+                </div>
+
+                <div class="bar-item" onclick="showDetail('锌', 65, 100, 'insufficient')">
+                    <div class="bar-label">锌</div>
+                    <div class="bar-container">
+                        <div class="bar-fill insufficient" style="width: 65%;">
+                            <div class="bar-value">65%</div>
+                        </div>
+                    </div>
+                    <div class="bar-target">15mg</div>
+                </div>
+
+                <div class="bar-item" onclick="showDetail('钙', 92, 100, 'sufficient')">
+                    <div class="bar-label">钙</div>
+                    <div class="bar-container">
+                        <div class="bar-fill sufficient" style="width: 92%;">
+                            <div class="bar-value">92%</div>
+                        </div>
+                    </div>
+                    <div class="bar-target">1000mg</div>
+                </div>
+
+                <div class="bar-item" onclick="showDetail('铁', 45, 100, 'deficient')">
+                    <div class="bar-label">铁</div>
+                    <div class="bar-container">
+                        <div class="bar-fill deficient" style="width: 45%;">
+                            <div class="bar-value">45%</div>
+                        </div>
+                    </div>
+                    <div class="bar-target">18mg</div>
+                </div>
+
+                <div class="bar-item" onclick="showDetail('钾', 78, 100, 'insufficient')">
+                    <div class="bar-label">钾</div>
+                    <div class="bar-container">
+                        <div class="bar-fill insufficient" style="width: 78%;">
+                            <div class="bar-value">78%</div>
+                        </div>
+                    </div>
+                    <div class="bar-target">2000mg</div>
+                </div>
+
+                <div class="bar-item" onclick="showDetail('维B', 88, 100, 'sufficient')">
+                    <div class="bar-label">维B</div>
+                    <div class="bar-container">
+                        <div class="bar-fill sufficient" style="width: 88%;">
+                            <div class="bar-value">88%</div>
+                        </div>
+                    </div>
+                    <div class="bar-target">1.5mg</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="font-bold text-gray-900">补剂计划</h3>
+                <button
+                    class="text-xs text-primary-600 bg-primary-50 px-3 py-1.5 rounded-full font-medium hover:bg-primary-100 active:scale-95 transition-all">
+                    <i class="fas fa-plus text-xs mr-1"></i>添加补剂
+                </button>
+            </div>
+            <div class="space-y-3" id="supplementList">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                    <div class="flex items-center space-x-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 font-bold text-sm">
+                            Mg</div>
+                        <div>
+                            <div class="text-sm font-semibold text-gray-900">甘氨酸镁</div>
+                            <div class="text-xs text-gray-400 mt-0.5">2粒 · 睡前服用</div>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600 active:scale-95 transition-all"
+                        onclick="removeSupplement(this)">
+                        <i class="fas fa-trash-alt text-sm"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                    <div class="flex items-center space-x-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 font-bold text-sm">
+                            Vc</div>
+                        <div>
+                            <div class="text-sm font-semibold text-gray-900">维生素 C</div>
+                            <div class="text-xs text-gray-400 mt-0.5">1粒 · 随餐</div>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600 active:scale-95 transition-all"
+                        onclick="removeSupplement(this)">
+                        <i class="fas fa-trash-alt text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 详情弹窗遮罩 -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeDetail()"></div>
+
+    <!-- 详情弹窗 -->
+    <div class="detail-modal" id="detailModal">
+        <div class="flex justify-between items-center mb-5 pb-4 border-b border-gray-100">
+            <h3 class="text-xl font-bold text-gray-900" id="detailTitle">镁</h3>
+            <button onclick="closeDetail()"
+                class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 active:scale-95 transition-all">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600 text-sm">当前摄入</span>
+                <span class="text-2xl font-bold text-gray-900" id="detailCurrent">85mg</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600 text-sm">每日推荐</span>
+                <span class="text-lg font-semibold text-gray-700" id="detailTarget">100mg</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600 text-sm">缺口</span>
+                <span class="text-lg font-semibold" id="detailGap" style="color: #76FB91;">-15mg</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600 text-sm">达标率</span>
+                <span class="text-lg font-semibold text-primary-600" id="detailPercent">85%</span>
+            </div>
+        </div>
+
+        <div class="mt-6 p-4 bg-primary-50 rounded-2xl">
+            <div class="text-sm font-semibold text-gray-900 mb-2">💡 补充建议</div>
+            <div class="text-sm text-gray-700" id="detailSuggestion">
+                建议增加坚果、深绿色蔬菜的摄入，或考虑补充镁剂。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function removeSupplement(btn) {
+            if (confirm('确定要删除这个补剂吗？')) {
+                btn.closest('.flex').remove();
+            }
+        }
+
+        // 微量元素详情数据
+        const elementDetails = {
+            '镁': {
+                current: 85,
+                target: 100,
+                unit: 'mg',
+                suggestion: '建议增加坚果、深绿色蔬菜的摄入，或考虑补充镁剂。'
+            },
+            '锌': {
+                current: 9.75,
+                target: 15,
+                unit: 'mg',
+                suggestion: '建议增加海鲜、瘦肉、豆类的摄入，或考虑补充锌剂。'
+            },
+            '钙': {
+                current: 920,
+                target: 1000,
+                unit: 'mg',
+                suggestion: '摄入良好！继续保持乳制品、豆制品的摄入。'
+            },
+            '铁': {
+                current: 8.1,
+                target: 18,
+                unit: 'mg',
+                suggestion: '缺口较大！建议增加红肉、动物肝脏、菠菜的摄入，或考虑补充铁剂。'
+            },
+            '钾': {
+                current: 1560,
+                target: 2000,
+                unit: 'mg',
+                suggestion: '建议增加香蕉、土豆、菠菜等高钾食物的摄入。'
+            },
+            '维B': {
+                current: 1.32,
+                target: 1.5,
+                unit: 'mg',
+                suggestion: '摄入良好！继续保持全谷物、瘦肉的摄入。'
+            }
+        };
+
+        function showDetail(element, percent, target, status) {
+            const data = elementDetails[element];
+            if (!data) return;
+
+            const gap = data.current - data.target;
+            const gapText = gap >= 0 ? `+${gap.toFixed(1)}${data.unit}` : `${gap.toFixed(1)}${data.unit}`;
+            const gapColor = gap >= 0 ? '#76FB91' : (percent < 50 ? '#ef4444' : '#f59e0b');
+
+            document.getElementById('detailTitle').textContent = element;
+            document.getElementById('detailCurrent').textContent = `${data.current}${data.unit}`;
+            document.getElementById('detailTarget').textContent = `${data.target}${data.unit}`;
+            document.getElementById('detailGap').textContent = gapText;
+            document.getElementById('detailGap').style.color = gapColor;
+            document.getElementById('detailPercent').textContent = `${percent}%`;
+            document.getElementById('detailSuggestion').textContent = data.suggestion;
+
+            document.getElementById('modalOverlay').classList.add('show');
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        function closeDetail() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            document.getElementById('detailModal').classList.remove('show');
+        }
+    </script>
+
+    <div class="tab-bar">
+        <a href="home.html" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>今日</span>
+        </a>
+        <a href="plan.html" class="tab-item active">
+            <i class="fas fa-calendar-alt"></i>
+            <span>计划</span>
+        </a>
+        <a href="wiki.html" class="tab-item">
+            <i class="fas fa-book-open"></i>
+            <span>百科</span>
+        </a>
+        <a href="profile.html" class="tab-item">
+            <i class="far fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+
+</body>
+
+</html>

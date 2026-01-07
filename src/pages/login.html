@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>身份激活</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f4fdf6',
+                            100: '#e5fceb',
+                            200: '#cbf9d8',
+                            300: '#a1db67', // Reference #A1DB67
+                            400: '#86efac',
+                            500: '#6fc86b', // Reference #6FC86B
+                            600: '#5ce582',
+                            700: '#42d073',
+                            800: '#2ab65c',
+                        },
+                        accent: {
+                            100: '#dce5b8', // Reference #DCE5B8
+                            200: '#dfe686', // Reference #DFE686
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background: url('../assets/images/边缘渗透渐变背景.png') center/cover no-repeat;
+            background-size: 200% 200%;
+            animation: gradientBG 15s ease infinite;
+            padding-top: 50px;
+            padding-bottom: 34px;
+            overflow-x: hidden;
+            width: 100vw;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(at 10% 10%, rgba(223, 230, 134, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 10%, rgba(161, 219, 103, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(111, 200, 107, 0.1) 0px, transparent 50%),
+                radial-gradient(at 10% 90%, rgba(220, 229, 184, 0.15) 0px, transparent 50%);
+            background-size: 200% 200%;
+            animation: gradientBG 15s ease infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .status-bar-time {
+            position: absolute;
+            top: 14px;
+            left: 30px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #1C1C1E;
+            z-index: 50;
+        }
+
+        .status-bar-icons {
+            position: absolute;
+            top: 14px;
+            right: 30px;
+            display: flex;
+            gap: 6px;
+            color: #1C1C1E;
+            z-index: 50;
+            font-size: 14px;
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        }
+    </style>
+</head>
+
+<body class="h-screen flex flex-col justify-between relative overflow-hidden">
+
+    <div class="status-bar-time">9:41</div>
+    <div class="status-bar-icons">
+        <i class="fas fa-signal"></i>
+        <i class="fas fa-wifi"></i>
+        <i class="fas fa-battery-full"></i>
+    </div>
+
+    <!-- Decorative Circles -->
+    <div class="absolute top-[-10%] right-[-20%] w-[120%] h-[60%] rounded-full border border-white/30 opacity-40 blur-[1px]"></div>
+    <div class="absolute top-[10%] right-[-10%] w-[100%] h-[50%] rounded-full border border-white/20 opacity-30 blur-[1px]"></div>
+    <div class="absolute top-[25%] right-[-5%] w-[80%] h-[40%] rounded-full border border-white/10 opacity-20"></div>
+
+    <div class="flex-1 flex flex-col justify-center px-10 relative w-full" style="z-index: 10;">
+        <!-- Text Content -->
+        <div class="mb-20">
+            <h1 id="welcomeTitle" class="text-5xl font-bold text-gray-900 mb-4 tracking-tight leading-tight">
+                你好，欢迎使用！
+            </h1>
+            <p class="text-gray-800 text-xl font-bold tracking-wide uppercase opacity-80">
+                AI 营养师
+            </p>
+        </div>
+
+        <!-- 用户协议勾选 -->
+        <div class="mb-6 flex items-start gap-3">
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" id="agreeCheckbox" class="mt-1 w-5 h-5 rounded border-2 border-gray-300 text-[#A1DB67] focus:ring-2 focus:ring-[#A1DB67] cursor-pointer accent-[#A1DB67]">
+                <span class="text-sm text-gray-600 leading-relaxed">
+                    我已阅读并同意
+                    <a href="#" class="text-[#6FC86B] font-semibold underline decoration-1 underline-offset-2">《用户协议》</a>
+                    和
+                    <a href="#" class="text-[#6FC86B] font-semibold underline decoration-1 underline-offset-2">《隐私政策》</a>
+                </span>
+            </label>
+        </div>
+
+        <!-- Login Button -->
+        <button
+            id="loginBtn"
+            disabled
+            class="w-full bg-gradient-to-r from-[#DCE5B8] to-[#D4E0A9] text-[#2F4025] font-bold text-lg py-5 px-6 rounded-full flex items-center justify-center space-x-3 shadow-xl shadow-[#a1db67]/40 active:scale-[0.98] transition-all duration-150 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100">
+            <div
+                class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+            </div>
+            <i class="fab fa-weixin text-2xl relative z-10"></i>
+            <span class="relative z-10">微信一键登录</span>
+        </button>
+
+        <p class="mt-8 text-xs text-gray-400 text-center w-full font-medium">
+            首次登录将自动为您创建账号
+        </p>
+    </div>
+
+    <script>
+        const agreeCheckbox = document.getElementById('agreeCheckbox');
+        const loginBtn = document.getElementById('loginBtn');
+        const welcomeTitle = document.getElementById('welcomeTitle');
+
+        // 页面加载时检查是否为老用户，显示不同欢迎语
+        window.addEventListener('DOMContentLoaded', function() {
+            const hasCompletedQuestionnaire = localStorage.getItem('hasCompletedQuestionnaire');
+            if (hasCompletedQuestionnaire) {
+                // 老用户
+                welcomeTitle.textContent = '欢迎回来！';
+            } else {
+                // 新用户
+                welcomeTitle.textContent = '你好，欢迎使用！';
+            }
+        });
+
+        // 监听复选框变化
+        agreeCheckbox.addEventListener('change', function() {
+            loginBtn.disabled = !this.checked;
+        });
+
+        // 登录按钮点击事件
+        loginBtn.addEventListener('click', function() {
+            if (!agreeCheckbox.checked) {
+                return;
+            }
+
+            // 显示加载状态
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-2xl relative z-10"></i><span class="relative z-10">登录中...</span>';
+            loginBtn.disabled = true;
+
+            // 模拟微信授权登录
+            // TODO: 实际项目中这里应该调用微信 JS-SDK 或后端接口
+            simulateWechatLogin();
+        });
+
+        // 模拟微信登录（实际项目中替换为真实的微信授权）
+        function simulateWechatLogin() {
+            setTimeout(() => {
+                // 临时方案：检查 localStorage 判断是否为新用户
+                // TODO: 替换为后端 API: /api/wechat/login
+                const hasCompletedQuestionnaire = localStorage.getItem('hasCompletedQuestionnaire');
+                const isNewUser = !hasCompletedQuestionnaire;
+
+                // 模拟后端返回
+                const response = {
+                    success: true,
+                    isNewUser: isNewUser,
+                    token: 'mock_token_' + Date.now(),
+                    user: {
+                        openid: 'mock_openid',
+                        nickname: '用户' + Math.floor(Math.random() * 1000)
+                    }
+                };
+
+                handleLoginSuccess(response);
+            }, 1500);
+        }
+
+        // 处理登录成功
+        function handleLoginSuccess(response) {
+            if (response.success) {
+                // 保存 token（实际项目中使用）
+                localStorage.setItem('userToken', response.token);
+                localStorage.setItem('userInfo', JSON.stringify(response.user));
+
+                // 根据是否为新用户跳转到不同页面
+                if (response.isNewUser) {
+                    // 新用户 → 问卷页
+                    window.location.href = 'questionnaire.html';
+                } else {
+                    // 老用户 → 首页
+                    window.location.href = 'home.html';
+                }
+            } else {
+                alert('登录失败，请重试');
+                // 恢复按钮状态
+                loginBtn.innerHTML = '<i class="fab fa-weixin text-2xl relative z-10"></i><span class="relative z-10">微信一键登录</span>';
+                loginBtn.disabled = false;
+            }
+        }
+
+        // 实际项目中的后端接口调用示例（注释掉的代码供参考）
+        /*
+        async function wechatLogin() {
+            try {
+                const response = await fetch('/api/wechat/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code: wechatAuthCode // 微信授权码
+                    })
+                });
+                
+                const data = await response.json();
+                handleLoginSuccess(data);
+            } catch (error) {
+                console.error('登录失败:', error);
+                alert('登录失败，请重试');
+            }
+        }
+        */
+    </script>
+</body>
+
+</html>

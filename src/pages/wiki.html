@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百科</title>
+    <link rel="stylesheet" href="../styles/design-system.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f4fdf6',
+                            100: '#DCE5B8',
+                            200: '#cbf9d8',
+                            300: '#A1DB67',
+                            400: '#86efac',
+                            500: '#6FC86B',
+                            600: '#5ce582',
+                            700: '#42d073',
+                            800: '#2ab65c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        /* @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap'); */
+        /* Font imported in design-system.css */
+
+        body {
+            /* font-family: 'Outfit', -apple-system, sans-serif; */
+            /* Global background from design-system.css */
+            padding-top: 50px;
+            padding-bottom: 120px;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .status-bar-time {
+            position: absolute;
+            top: 14px;
+            left: 30px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #000;
+        }
+
+        .status-bar-icons {
+            position: absolute;
+            top: 14px;
+            right: 30px;
+            display: flex;
+            gap: 6px;
+            color: #000;
+            font-size: 14px;
+        }
+
+        .tab-bar {
+            position: fixed;
+            bottom: 34px;
+            left: 20px;
+            right: 20px;
+            height: 76px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #9ca3af;
+            font-size: 13px;
+            font-weight: 500;
+            gap: 6px;
+        }
+
+        .tab-item i {
+            font-size: 24px;
+        }
+
+        .tab-item.active {
+            color: #6FC86B;
+        }
+
+        .search-bar {
+            background: #fff;
+            border-radius: 20px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            color: #9ca3af;
+            font-size: 14px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+        }
+
+        .search-bar:focus-within {
+            box-shadow: 0 4px 20px rgba(118, 251, 145, 0.15);
+            border-color: #76FB91;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen relative overflow-y-auto">
+
+    <div class="status-bar-time">9:41</div>
+    <div class="status-bar-icons">
+        <i class="fas fa-signal"></i>
+        <i class="fas fa-wifi"></i>
+        <i class="fas fa-battery-full"></i>
+    </div>
+
+    <div class="px-6 mb-6 pt-2">
+        <h1 class="text-3xl font-bold text-gray-900 mb-5 tracking-tight">百科中心</h1>
+        <div class="search-bar">
+            <i class="fas fa-search mr-3 text-gray-400 text-base"></i>
+            <span class="font-medium">搜索抗炎食材、补剂...</span>
+        </div>
+    </div>
+
+    <div class="px-5 space-y-6">
+
+        <div
+            class="w-full h-40 rounded-3xl bg-gradient-to-br from-primary-500 to-primary-600 relative overflow-hidden flex items-center px-7 shadow-xl shadow-primary-500/30">
+            <div class="relative z-10 text-white">
+                <h3 class="font-bold text-2xl mb-2 tracking-tight">抗炎饮食入门课</h3>
+                <p class="text-sm opacity-95 mb-4 font-medium">7 天掌握核心抗炎法则</p>
+                <button
+                    class="bg-white text-primary-600 text-sm px-6 py-2.5 rounded-full font-bold shadow-lg active:scale-95 transition-transform">立即学习</button>
+            </div>
+            <i class="fas fa-book-reader absolute right-[-20px] bottom-[-30px] text-9xl text-white opacity-10"></i>
+        </div>
+
+        <div>
+            <h3 class="font-bold text-gray-900 mb-3 text-base">抗炎红黑榜</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-gray-50 p-5 rounded-2xl flex items-center space-x-3 border border-gray-100">
+                    <div
+                        class="w-11 h-11 bg-white rounded-2xl flex items-center justify-center text-gray-400 shadow-sm">
+                        <i class="fas fa-times text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-gray-900 text-sm">黑榜</div>
+                        <div class="text-xs text-gray-500 mt-0.5">促炎食物</div>
+                    </div>
+                </div>
+                <div class="bg-primary-50 p-5 rounded-2xl flex items-center space-x-3 border border-primary-100">
+                    <div
+                        class="w-11 h-11 bg-white rounded-2xl flex items-center justify-center text-primary-600 shadow-sm">
+                        <i class="fas fa-check text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-gray-900 text-sm">红榜</div>
+                        <div class="text-xs text-gray-500 mt-0.5">抗炎明星</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="font-bold text-gray-900 mb-3 text-base">明星补剂</h3>
+            <div class="space-y-3">
+
+                <a href="supplement-detail.html?name=深海鱼油 Omega-3"
+                    class="bg-white p-4 rounded-2xl flex space-x-3 shadow-sm border border-gray-50 hover:shadow-md transition-all active:scale-[0.98]">
+                    <div class="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl shrink-0 flex items-center justify-center">
+                        <i class="fas fa-fish text-3xl text-primary-600"></i>
+                    </div>
+                    <div class="flex-1 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-bold text-gray-900 text-sm">深海鱼油 Omega-3</h4>
+                            <p class="text-xs text-gray-400 mt-1 line-clamp-1">高纯度 EPA/DHA,强效抗炎</p>
+                        </div>
+                        <div class="flex justify-end items-center mt-2">
+                            <button
+                                class="bg-primary-500 text-white text-xs px-4 py-1.5 rounded-full font-medium active:scale-95 transition-transform">了解更多</button>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="supplement-detail.html?name=姜黄素胶囊"
+                    class="bg-white p-4 rounded-2xl flex space-x-3 shadow-sm border border-gray-50 hover:shadow-md transition-all active:scale-[0.98]">
+                    <div class="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl shrink-0 flex items-center justify-center">
+                        <i class="fas fa-capsules text-3xl text-primary-600"></i>
+                    </div>
+                    <div class="flex-1 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-bold text-gray-900 text-sm">姜黄素胶囊</h4>
+                            <p class="text-xs text-gray-400 mt-1 line-clamp-1">天然抗炎神器,吸收率提升 20 倍</p>
+                        </div>
+                        <div class="flex justify-end items-center mt-2">
+                            <button
+                                class="bg-primary-500 text-white text-xs px-4 py-1.5 rounded-full font-medium active:scale-95 transition-transform">了解更多</button>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-bar">
+        <a href="home.html" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>今日</span>
+        </a>
+        <a href="plan.html" class="tab-item">
+            <i class="far fa-calendar-alt"></i>
+            <span>计划</span>
+        </a>
+        <a href="wiki.html" class="tab-item active">
+            <i class="fas fa-book-open"></i>
+            <span>百科</span>
+        </a>
+        <a href="profile.html" class="tab-item">
+            <i class="far fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康档案</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f4fdf6',
+                            100: '#DCE5B8',
+                            200: '#cbf9d8',
+                            300: '#A1DB67',
+                            400: '#86efac',
+                            500: '#6FC86B',
+                            600: '#5ce582',
+                            700: '#42d073',
+                            800: '#2ab65c',
+                        },
+                        accent: {
+                            yellow: '#DFE686',
+                            lime: '#DFE686',
+                            green: '#A1DB67',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background: #f4fdf6;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(223, 230, 134, 0.2) 0px, transparent 50%),
+                radial-gradient(at 90% 10%, rgba(161, 219, 103, 0.2) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(111, 200, 107, 0.1) 0px, transparent 50%),
+                radial-gradient(at 10% 90%, rgba(220, 229, 184, 0.2) 0px, transparent 50%);
+            background-attachment: fixed;
+            padding-top: 50px;
+            padding-bottom: 20px;
+            min-height: 100vh;
+        }
+
+        .status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 100;
+            background: rgba(244, 253, 246, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .status-bar-time {
+            font-weight: 600;
+            font-size: 15px;
+            color: #000;
+        }
+
+        .status-bar-icons {
+            display: flex;
+            gap: 6px;
+            color: #000;
+            font-size: 14px;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 60px;
+            left: 20px;
+            z-index: 50;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            color: #1C1C1E;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .back-btn:active {
+            transform: scale(0.95) translateY(0);
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            margin-bottom: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .info-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #6B7280;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #1C1C1E;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .info-value.editable {
+            cursor: pointer;
+            background: #f9fafb;
+        }
+
+        .info-value.editable:hover {
+            background: #DCE5B8;
+            color: #2ab65c;
+            transform: translateX(2px);
+        }
+
+        .info-value.editable::after {
+            content: '\f304';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 12px;
+            color: #9ca3af;
+            margin-left: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .info-value.editable:hover::after {
+            opacity: 1;
+        }
+
+        .info-value.editing {
+            background: linear-gradient(135deg, #DCE5B8 0%, #DFE686 100%);
+            border: 2px solid #6FC86B;
+            box-shadow: 0 0 0 3px rgba(111, 200, 107, 0.1);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 3px rgba(111, 200, 107, 0.1);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(111, 200, 107, 0.05);
+            }
+        }
+
+        .info-value.empty {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .options-selector {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            z-index: 1000;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .options-selector.show {
+            transform: translateY(0);
+        }
+
+        .options-selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .options-selector-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1C1C1E;
+        }
+
+        .options-selector-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .options-selector-close:active {
+            transform: scale(0.95);
+        }
+
+        .option-item {
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+            font-weight: 500;
+            color: #1C1C1E;
+        }
+
+        .option-item:hover {
+            background: #f3f4f6;
+        }
+
+        .option-item.selected {
+            background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(111, 200, 107, 0.3);
+            transform: scale(1.02);
+        }
+
+        .option-item:active {
+            transform: scale(0.98);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .save-cancel-buttons {
+            display: none;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .save-cancel-buttons.show {
+            display: flex;
+        }
+
+        .btn-save, .btn-cancel {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(111, 200, 107, 0.4);
+        }
+
+        .btn-save:hover {
+            box-shadow: 0 6px 20px rgba(111, 200, 107, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-save:active {
+            transform: scale(0.98) translateY(0);
+        }
+
+        .btn-save.saving {
+            background: #9ca3af;
+            pointer-events: none;
+        }
+
+        .btn-save.success {
+            background: #6FC86B;
+        }
+
+        .btn-cancel {
+            background: #f3f4f6;
+            color: #6B7280;
+        }
+
+        .btn-cancel:active {
+            transform: scale(0.98);
+        }
+
+        /* 空状态样式 */
+        .empty-state {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 24px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            border: 2px dashed #DCE5B8;
+            margin: 20px 0;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #DCE5B8 0%, #DFE686 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: #6FC86B;
+        }
+
+        .empty-state-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-desc {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .empty-state-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(111, 200, 107, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .empty-state-btn:hover {
+            box-shadow: 0 6px 16px rgba(111, 200, 107, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .empty-state-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 批量编辑模式 */
+        .batch-edit-header {
+            display: none;
+            position: fixed;
+            top: 44px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);
+            color: white;
+            padding: 16px 20px;
+            z-index: 90;
+            box-shadow: 0 4px 12px rgba(111, 200, 107, 0.3);
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .batch-edit-header.show {
+            display: flex;
+        }
+
+        .batch-edit-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .batch-edit-count {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .batch-edit-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .batch-edit-btn {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .batch-edit-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .batch-edit-btn.primary {
+            background: white;
+            color: #6FC86B;
+            border: none;
+        }
+
+        .batch-edit-btn.primary:hover {
+            background: #f9fafb;
+        }
+
+        /* 字段选择框 */
+        .field-checkbox {
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .info-item.batch-mode {
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .info-item.batch-mode .field-checkbox {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .field-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #6FC86B;
+        }
+
+        .info-item.selected-field {
+            background: rgba(161, 219, 103, 0.1);
+            border-radius: 12px;
+            margin: 0 -12px;
+            padding: 12px 12px 12px 44px;
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 375px) {
+            .info-card {
+                padding: 16px;
+            }
+
+            .empty-state {
+                padding: 32px 20px;
+            }
+
+            .empty-state-icon {
+                width: 64px;
+                height: 64px;
+                font-size: 28px;
+            }
+
+            .batch-edit-header {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-height: 667px) {
+            .options-selector {
+                max-height: 50vh;
+            }
+        }
+    </style>
+</head>
+
+<body class="h-screen relative overflow-y-auto">
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="status-bar-time">9:41</div>
+        <div class="status-bar-icons">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+
+    <!-- 批量编辑头部 -->
+    <div class="batch-edit-header" id="batchEditHeader">
+        <div class="batch-edit-info">
+            <i class="fas fa-check-circle"></i>
+            <span>已选择 <span class="batch-edit-count" id="selectedCount">0</span> 项</span>
+        </div>
+        <div class="batch-edit-actions">
+            <button class="batch-edit-btn" id="cancelBatchBtn">取消</button>
+            <button class="batch-edit-btn primary" id="editSelectedBtn">编辑选中</button>
+        </div>
+    </div>
+
+    <a href="profile.html" class="back-btn" aria-label="返回个人中心">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <div class="px-6 mb-6 pt-2 flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight">健康档案</h1>
+            <p class="text-sm text-gray-500">您的个人健康信息</p>
+        </div>
+        <div class="flex gap-2">
+            <button id="batchEditBtn" class="text-primary-500 font-semibold text-sm px-4 py-2 rounded-full bg-primary-100 hover:bg-primary-200 active:scale-95 transition-all" style="display: none;">
+                <i class="fas fa-check-square mr-1"></i>批量编辑
+            </button>
+            <button id="editBtn" class="text-primary-500 font-semibold text-sm px-4 py-2 rounded-full bg-primary-100 hover:bg-primary-200 active:scale-95 transition-all">
+                <i class="fas fa-edit mr-1"></i>编辑
+            </button>
+        </div>
+    </div>
+
+    <div class="px-5" id="mainContent">
+        <!-- 空状态提示 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="empty-state-title">还没有健康档案</div>
+            <div class="empty-state-desc">完成健康问卷后，您的个人健康信息将显示在这里</div>
+            <a href="questionnaire.html" class="empty-state-btn">
+                <i class="fas fa-edit"></i>
+                <span>去填写问卷</span>
+            </a>
+        </div>
+
+        <!-- 数据内容区 -->
+        <div id="dataContent">
+            <!-- 基本信息 -->
+            <div class="mb-4">
+                <h3 class="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wide">基本信息</h3>
+                <div class="info-card">
+                    <div class="info-item" data-field="age">
+                        <div class="field-checkbox">
+                            <input type="checkbox" value="age" aria-label="选择年龄字段">
+                        </div>
+                        <span class="info-label">年龄</span>
+                        <span class="info-value" id="age" data-field="age">-</span>
+                    </div>
+                    <div class="info-item" data-field="gender">
+                        <div class="field-checkbox">
+                            <input type="checkbox" value="gender" aria-label="选择性别字段">
+                        </div>
+                        <span class="info-label">性别</span>
+                        <span class="info-value" id="gender" data-field="gender">-</span>
+                    </div>
+                    <div class="info-item" data-field="height">
+                        <div class="field-checkbox">
+                            <input type="checkbox" value="height" aria-label="选择身高字段">
+                        </div>
+                        <span class="info-label">身高</span>
+                        <span class="info-value" id="height" data-field="height">-</span>
+                    </div>
+                    <div class="info-item" data-field="weight">
+                        <div class="field-checkbox">
+                            <input type="checkbox" value="weight" aria-label="选择体重字段">
+                        </div>
+                        <span class="info-label">体重</span>
+                        <span class="info-value" id="weight" data-field="weight">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 目标偏好 -->
+            <div class="mb-4">
+                <h3 class="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wide">目标偏好</h3>
+                <div class="info-card">
+                    <div class="info-item" data-field="goal">
+                        <div class="field-checkbox">
+                            <input type="checkbox" value="goal" aria-label="选择健康目标字段">
+                        </div>
+                        <span class="info-label">首要健康目标</span>
+                        <span class="info-value" id="goal" data-field="goal">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 生活方式 -->
+            <div class="mb-4">
+                <h3 class="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wide">生活方式</h3>
+                <div class="info-card">
+                    <div class="info-item" data-field="activity">
+                        <div class="field-checkbox">
+                            <input type="checkbox" value="activity" aria-label="选择活动量字段">
+                        </div>
+                        <span class="info-label">日常活动量</span>
+                        <span class="info-value" id="activity" data-field="activity">-</span>
+                    </div>
+                    <div class="info-item" data-field="sleep">
+                        <div class="field-checkbox">
+                            <input type="checkbox" value="sleep" aria-label="选择睡眠时长字段">
+                        </div>
+                        <span class="info-label">平均睡眠时长</span>
+                        <span class="info-value" id="sleep" data-field="sleep">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 饮食习惯 -->
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wide">饮食习惯</h3>
+                <div class="info-card">
+                    <div class="info-item" data-field="veg">
+                        <div class="field-checkbox">
+                            <input type="checkbox" value="veg" aria-label="选择蔬菜摄入字段">
+                        </div>
+                        <span class="info-label">蔬菜摄入频率</span>
+                        <span class="info-value" id="veg" data-field="veg">-</span>
+                    </div>
+                    <div class="info-item" data-field="fruit">
+                        <div class="field-checkbox">
+                            <input type="checkbox" value="fruit" aria-label="选择水果摄入字段">
+                        </div>
+                        <span class="info-label">水果摄入频率</span>
+                        <span class="info-value" id="fruit" data-field="fruit">-</span>
+                    </div>
+                    <div class="info-item" data-field="water">
+                        <div class="field-checkbox">
+                            <input type="checkbox" value="water" aria-label="选择饮水量字段">
+                        </div>
+                        <span class="info-label">每日饮水量</span>
+                        <span class="info-value" id="water" data-field="water">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 保存/取消按钮 -->
+        <div class="save-cancel-buttons mb-6" id="saveCancelButtons">
+            <button class="btn-cancel" id="cancelBtn">取消</button>
+            <button class="btn-save" id="saveBtn">保存</button>
+        </div>
+    </div>
+
+    <!-- 选项选择器遮罩 -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- 选项选择器 -->
+    <div class="options-selector" id="optionsSelector">
+        <div class="options-selector-header">
+            <div class="options-selector-title" id="selectorTitle">选择选项</div>
+            <div class="options-selector-close" id="closeSelector">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <div id="optionsList"></div>
+    </div>
+
+    <script>
+        // 从 localStorage 读取问卷答案
+        const STORAGE_KEY = 'questionnaireAnswers';
+        let answers = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        let originalAnswers = JSON.parse(JSON.stringify(answers)); // 备份原始数据
+        let isEditing = false;
+        let isBatchMode = false;
+        let selectedFields = new Set();
+        let currentEditingField = null;
+
+        // 字段选项定义（与 questionnaire.html 保持一致）
+        const fieldOptions = {
+            'age': ['18-29', '30-39', '40-49', '50-64', '65+'],
+            'gender': ['男', '女'],
+            'height': ['< 160', '160-170', '171-180', '> 180'],
+            'weight': ['< 50', '50-60', '61-70', '71-80', '> 80'],
+            'goal': ['减脂塑形', '提高免疫力', '改善睡眠', '肠胃健康', '皮肤管理'],
+            'activity': ['久坐为主', '轻度活动', '中等活动', '高强度活动'],
+            'sleep': ['< 6小时', '6-7小时', '7-8小时', '> 8小时'],
+            'veg': ['几乎不吃', '偶尔吃', '每天吃', '每餐都吃'],
+            'fruit': ['几乎不吃', '偶尔吃', '每天吃'],
+            'water': ['< 4杯', '4-8杯', '> 8杯']
+        };
+
+        // 字段标签映射
+        const fieldLabels = {
+            'age': '年龄',
+            'gender': '性别',
+            'height': '身高',
+            'weight': '体重',
+            'goal': '首要健康目标',
+            'activity': '日常活动量',
+            'sleep': '平均睡眠时长',
+            'veg': '蔬菜摄入频率',
+            'fruit': '水果摄入频率',
+            'water': '每日饮水量'
+        };
+
+        // DOM 元素
+        const editBtn = document.getElementById('editBtn');
+        const batchEditBtn = document.getElementById('batchEditBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const saveCancelButtons = document.getElementById('saveCancelButtons');
+        const overlay = document.getElementById('overlay');
+        const optionsSelector = document.getElementById('optionsSelector');
+        const selectorTitle = document.getElementById('selectorTitle');
+        const optionsList = document.getElementById('optionsList');
+        const closeSelector = document.getElementById('closeSelector');
+        const emptyState = document.getElementById('emptyState');
+        const dataContent = document.getElementById('dataContent');
+        const batchEditHeader = document.getElementById('batchEditHeader');
+        const selectedCount = document.getElementById('selectedCount');
+        const cancelBatchBtn = document.getElementById('cancelBatchBtn');
+        const editSelectedBtn = document.getElementById('editSelectedBtn');
+
+        // 检查是否有数据
+        function checkDataAvailability() {
+            const answerData = answers.answers || {};
+            const hasData = Object.keys(answerData).length > 0 && 
+                           Object.values(answerData).some(val => val && val !== '未填写');
+            
+            if (!hasData) {
+                emptyState.style.display = 'block';
+                dataContent.style.display = 'none';
+                editBtn.style.display = 'none';
+                batchEditBtn.style.display = 'none';
+            } else {
+                emptyState.style.display = 'none';
+                dataContent.style.display = 'block';
+                editBtn.style.display = 'block';
+                batchEditBtn.style.display = 'block';
+            }
+        }
+
+        // 显示答案
+        function displayAnswers() {
+            const answerData = answers.answers || {};
+            
+            // 基本信息
+            updateField('age', answerData.age || '未填写');
+            updateField('gender', answerData.gender || '未填写');
+            updateField('height', answerData.height || '未填写');
+            updateField('weight', answerData.weight || '未填写');
+            
+            // 目标偏好
+            updateField('goal', answerData.goal || '未填写');
+            
+            // 生活方式
+            updateField('activity', answerData.activity || '未填写');
+            updateField('sleep', answerData.sleep || '未填写');
+            
+            // 饮食习惯
+            updateField('veg', answerData.veg || '未填写');
+            updateField('fruit', answerData.fruit || '未填写');
+            updateField('water', answerData.water || '未填写');
+
+            // 检查数据可用性
+            checkDataAvailability();
+        }
+
+        // 更新字段显示
+        function updateField(fieldId, value) {
+            const element = document.getElementById(fieldId);
+            if (element) {
+                element.textContent = value;
+                element.dataset.value = value;
+                
+                // 添加空值样式
+                if (!value || value === '未填写' || value === '-') {
+                    element.classList.add('empty');
+                } else {
+                    element.classList.remove('empty');
+                }
+            }
+        }
+
+        // 使用事件委托处理字段点击
+        document.addEventListener('click', function(e) {
+            if (!isEditing || isBatchMode) return;
+            
+            const fieldId = e.target.id;
+            if (fieldOptions[fieldId] && e.target.classList.contains('info-value')) {
+                openSelector(fieldId);
+            }
+        });
+
+        // 处理批量选择
+        document.addEventListener('change', function(e) {
+            if (e.target.type === 'checkbox' && e.target.closest('.field-checkbox')) {
+                const fieldValue = e.target.value;
+                const infoItem = e.target.closest('.info-item');
+                
+                if (e.target.checked) {
+                    selectedFields.add(fieldValue);
+                    infoItem.classList.add('selected-field');
+                } else {
+                    selectedFields.delete(fieldValue);
+                    infoItem.classList.remove('selected-field');
+                }
+                
+                updateSelectedCount();
+            }
+        });
+
+        // 进入编辑模式
+        function enterEditMode() {
+            isEditing = true;
+            editBtn.style.display = 'none';
+            batchEditBtn.style.display = 'none';
+            saveCancelButtons.classList.add('show');
+            
+            // 让所有值可点击
+            Object.keys(fieldOptions).forEach(fieldId => {
+                const element = document.getElementById(fieldId);
+                if (element) {
+                    element.classList.add('editing', 'editable');
+                }
+            });
+        }
+
+        // 进入批量编辑模式
+        function enterBatchMode() {
+            isBatchMode = true;
+            editBtn.style.display = 'none';
+            batchEditBtn.style.display = 'none';
+            batchEditHeader.classList.add('show');
+            
+            // 显示所有复选框
+            document.querySelectorAll('.info-item').forEach(item => {
+                item.classList.add('batch-mode');
+            });
+            
+            // 调整内容区域的padding-top以避免被header遮挡
+            document.body.style.paddingTop = '110px';
+        }
+
+        // 退出批量编辑模式
+        function exitBatchMode() {
+            isBatchMode = false;
+            editBtn.style.display = 'block';
+            batchEditBtn.style.display = 'block';
+            batchEditHeader.classList.remove('show');
+            
+            // 隐藏所有复选框并清除选择
+            document.querySelectorAll('.info-item').forEach(item => {
+                item.classList.remove('batch-mode', 'selected-field');
+            });
+            
+            document.querySelectorAll('.field-checkbox input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            selectedFields.clear();
+            updateSelectedCount();
+            
+            document.body.style.paddingTop = '50px';
+        }
+
+        // 更新选中数量
+        function updateSelectedCount() {
+            selectedCount.textContent = selectedFields.size;
+            editSelectedBtn.disabled = selectedFields.size === 0;
+            
+            if (selectedFields.size === 0) {
+                editSelectedBtn.style.opacity = '0.5';
+                editSelectedBtn.style.pointerEvents = 'none';
+            } else {
+                editSelectedBtn.style.opacity = '1';
+                editSelectedBtn.style.pointerEvents = 'all';
+            }
+        }
+
+        // 编辑选中的字段
+        function editSelectedFields() {
+            if (selectedFields.size === 0) return;
+            
+            // 退出批量模式，进入编辑模式
+            exitBatchMode();
+            enterEditMode();
+            
+            // 只让选中的字段可编辑
+            Object.keys(fieldOptions).forEach(fieldId => {
+                const element = document.getElementById(fieldId);
+                if (element) {
+                    if (selectedFields.has(fieldId)) {
+                        element.classList.add('editing', 'editable');
+                    } else {
+                        element.classList.remove('editing', 'editable');
+                        element.style.opacity = '0.5';
+                        element.style.pointerEvents = 'none';
+                    }
+                }
+            });
+        }
+
+        // 退出编辑模式
+        function exitEditMode() {
+            isEditing = false;
+            editBtn.style.display = 'block';
+            batchEditBtn.style.display = 'block';
+            saveCancelButtons.classList.remove('show');
+            
+            // 恢复原始值
+            answers = JSON.parse(JSON.stringify(originalAnswers));
+            displayAnswers();
+            
+            // 移除编辑样式并恢复所有字段
+            Object.keys(fieldOptions).forEach(fieldId => {
+                const element = document.getElementById(fieldId);
+                if (element) {
+                    element.classList.remove('editing', 'editable');
+                    element.style.opacity = '';
+                    element.style.pointerEvents = '';
+                }
+            });
+            
+            // 清除批量选择
+            selectedFields.clear();
+        }
+
+        // 打开选项选择器
+        function openSelector(fieldId) {
+            currentEditingField = fieldId;
+            const options = fieldOptions[fieldId];
+            const label = fieldLabels[fieldId];
+            const currentValue = document.getElementById(fieldId).dataset.value || '';
+            
+            selectorTitle.textContent = label;
+            optionsList.innerHTML = '';
+            
+            options.forEach(option => {
+                const optionItem = document.createElement('div');
+                optionItem.className = 'option-item' + (option === currentValue ? ' selected' : '');
+                optionItem.textContent = option;
+                optionItem.addEventListener('click', () => selectOption(option));
+                optionsList.appendChild(optionItem);
+            });
+            
+            overlay.classList.add('show');
+            optionsSelector.classList.add('show');
+        }
+
+        // 选择选项
+        function selectOption(value) {
+            if (currentEditingField) {
+                updateField(currentEditingField, value);
+                // 更新 answers 对象
+                if (!answers.answers) {
+                    answers.answers = {};
+                }
+                answers.answers[currentEditingField] = value;
+            }
+            closeSelector();
+        }
+
+        // 关闭选择器
+        function closeSelector() {
+            overlay.classList.remove('show');
+            optionsSelector.classList.remove('show');
+            currentEditingField = null;
+        }
+
+        // 保存修改
+        function saveChanges() {
+            // 显示保存中状态
+            saveBtn.classList.add('saving');
+            const saveBtnText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>保存中...';
+            
+            // 模拟保存延迟
+            setTimeout(() => {
+                // 更新日期
+                if (!answers.date) {
+                    answers.date = new Date().toISOString();
+                }
+                answers.updateDate = new Date().toISOString();
+                
+                // 更新原始数据备份
+                originalAnswers = JSON.parse(JSON.stringify(answers));
+                
+                // 保存到 localStorage
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
+                
+                // 显示成功状态
+                saveBtn.classList.remove('saving');
+                saveBtn.classList.add('success');
+                saveBtn.innerHTML = '<i class="fas fa-check mr-1"></i>已保存';
+                
+                setTimeout(() => {
+                    // 退出编辑模式
+                    exitEditMode();
+                    
+                    // 恢复按钮
+                    saveBtn.classList.remove('success');
+                    saveBtn.innerHTML = saveBtnText;
+                }, 1000);
+            }, 500);
+        }
+
+        // 事件绑定
+        editBtn.addEventListener('click', enterEditMode);
+        batchEditBtn.addEventListener('click', enterBatchMode);
+        saveBtn.addEventListener('click', saveChanges);
+        cancelBtn.addEventListener('click', exitEditMode);
+        closeSelector.addEventListener('click', closeSelector);
+        overlay.addEventListener('click', closeSelector);
+        cancelBatchBtn.addEventListener('click', exitBatchMode);
+        editSelectedBtn.addEventListener('click', editSelectedFields);
+
+        // 键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            // ESC键退出编辑或批量模式
+            if (e.key === 'Escape') {
+                if (isBatchMode) {
+                    exitBatchMode();
+                } else if (isEditing) {
+                    if (optionsSelector.classList.contains('show')) {
+                        closeSelector();
+                    } else {
+                        exitEditMode();
+                    }
+                }
+            }
+            
+            // Ctrl/Cmd + S 保存
+            if ((e.ctrlKey || e.metaKey) && e.key === 's' && isEditing) {
+                e.preventDefault();
+                saveChanges();
+            }
+        });
+
+        // 页面加载时显示答案
+        displayAnswers();
+
+        // 初始化选中数量
+        updateSelectedCount();
+    </script>
+
+</body>
+
+</html>
+

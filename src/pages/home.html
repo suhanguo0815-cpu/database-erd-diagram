@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今日</title>
+    <link rel="stylesheet" href="../styles/design-system.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding-top: 50px;
+            padding-bottom: 120px;
+            min-height: 100vh;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+            background: #f4fdf6;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(223, 230, 134, 0.2) 0px, transparent 50%),
+                radial-gradient(at 90% 10%, rgba(161, 219, 103, 0.2) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(111, 200, 107, 0.1) 0px, transparent 50%),
+                radial-gradient(at 10% 90%, rgba(220, 229, 184, 0.2) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* 状态栏样式统一 */
+        .status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 100;
+            background: rgba(244, 253, 246, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .page-container {
+            padding: 0 20px;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            padding: 8px 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1C1C1E;
+            letter-spacing: 0.3px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: #6B7280;
+            font-weight: 500;
+            margin-top: 4px;
+            letter-spacing: 0.2px;
+        }
+
+        /* 统一卡片样式 */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f0f0f0;
+        }
+
+        /* 健康风险评分卡片 */
+        .health-score-card {
+            margin-bottom: 16px;
+            padding: 20px;
+        }
+
+        .health-score-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            color: #1C1C1E;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .card-subtitle {
+            color: #8E8E93;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .expand-btn {
+            background: #f5f5f5;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #666;
+        }
+
+        .expand-btn:hover {
+            background: #e5e5e5;
+        }
+
+        .expand-btn i {
+            transition: transform 0.3s ease;
+            font-size: 14px;
+        }
+
+        .expand-btn.expanded i {
+            transform: rotate(180deg);
+        }
+
+        /* 环形进度图 */
+        .health-ring-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .health-ring-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+        }
+
+        .health-ring-svg {
+            transform: rotate(-90deg);
+        }
+
+        .health-ring-bg {
+            fill: none;
+            stroke: #E5E5E7;
+            stroke-width: 10;
+        }
+
+        .health-ring-progress {
+            fill: none;
+            stroke: #76FB91;
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease, stroke 0.5s ease;
+        }
+
+        /* 不同等级的环形颜色 */
+        .health-ring-progress.bad {
+            stroke: #ef4444;
+        }
+
+        .health-ring-progress.no-great {
+            stroke: #f97316;
+        }
+
+        .health-ring-progress.okay {
+            stroke: #eab308;
+        }
+
+        .health-ring-progress.good {
+            stroke: #A1DB67;
+        }
+
+        .health-ring-progress.great {
+            stroke: #6FC86B;
+        }
+
+        .health-ring-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .health-emoji {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            animation: emojiEnter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes emojiEnter {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .health-ring-score {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1C1C1E;
+            line-height: 1;
+        }
+
+        .health-ring-grade {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 2px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: rgba(161, 219, 103, 0.15);
+            color: #6FC86B;
+        }
+
+        /* 不同等级的颜色 */
+        .health-ring-grade.bad {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .health-ring-grade.no-great {
+            background: rgba(249, 115, 22, 0.15);
+            color: #f97316;
+        }
+
+        .health-ring-grade.okay {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+        }
+
+        .health-ring-grade.good {
+            background: rgba(161, 219, 103, 0.15);
+            color: #A1DB67;
+        }
+
+        .health-ring-grade.great {
+            background: rgba(111, 200, 107, 0.15);
+            color: #6FC86B;
+        }
+
+        .health-ring-total {
+            font-size: 12px;
+            color: #8E8E93;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        /* 四个维度详情 */
+        .dimensions-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .dimensions-detail.expanded {
+            max-height: 400px;
+        }
+
+        .dimension-item {
+            margin-bottom: 14px;
+        }
+
+        .dimension-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .dimension-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1C1C1E;
+        }
+
+        .dimension-weight {
+            font-size: 12px;
+            color: #8E8E93;
+            margin-left: 6px;
+            font-weight: 500;
+        }
+
+        .dimension-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1C1C1E;
+        }
+
+        .dimension-bar {
+            width: 100%;
+            height: 6px;
+            background: #f5f5f5;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .dimension-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.6s ease;
+        }
+
+        /* T型餐盘结构 - 参考旧版设计 */
+        .tplate-container {
+            margin-bottom: 16px;
+        }
+
+        /* T型动画效果 */
+        @keyframes tStructureFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes tStructureGlow {
+            0%, 100% {
+                box-shadow: 0 4px 20px rgba(118, 251, 145, 0.15);
+            }
+            50% {
+                box-shadow: 0 4px 30px rgba(118, 251, 145, 0.25);
+            }
+        }
+
+        @keyframes tLineGrow {
+            from {
+                width: 0;
+                opacity: 0;
+            }
+            to {
+                width: 7rem;
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes tLineGrowVertical {
+            from {
+                height: 0;
+                opacity: 0;
+            }
+            to {
+                height: 0.5rem;
+                opacity: 0.7;
+            }
+        }
+
+        /* 蔬菜主卡片 */
+        .tplate-main-card {
+            background: white;
+            border-radius: 16px;
+            border: 2px solid #76FB91;
+            padding: 16px;
+            margin-bottom: 8px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            animation: tStructureFadeIn 0.8s ease-out, tStructureGlow 3s ease-in-out infinite;
+        }
+
+        .tplate-main-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom right, rgba(118, 251, 145, 0.06), transparent);
+            pointer-events: none;
+        }
+
+        .tplate-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tplate-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tplate-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(118, 251, 145, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 2px 8px rgba(118, 251, 145, 0.2);
+            position: relative;
+        }
+
+        .tplate-icon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: #76FB91;
+            opacity: 0.2;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.2; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+
+        .tplate-info h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1C1C1E;
+            letter-spacing: 0.2px;
+        }
+
+        .tplate-info p {
+            font-size: 12px;
+            color: #6B7280;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .tplate-percentage {
+            font-size: 28px;
+            font-weight: 700;
+            color: #76FB91;
+            line-height: 1;
+        }
+
+        .tplate-status {
+            font-size: 12px;
+            color: #76FB91;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .tplate-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 999px;
+            margin-top: 12px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tplate-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #76FB91 0%, #5CE582 100%);
+            border-radius: 999px;
+            transition: width 0.6s ease;
+            position: relative;
+        }
+
+        .tplate-progress-fill::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* T型连接线 */
+        .t-line-x {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 7rem;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #76FB91, transparent);
+            z-index: 20;
+            animation: tLineGrow 0.8s ease-out forwards, tStructureGlow 3s ease-in-out infinite;
+        }
+
+        .t-line-y {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 0.5rem;
+            background: linear-gradient(to bottom, #76FB91, transparent);
+            z-index: 20;
+            top: calc(100% - 2px);
+            animation: tLineGrowVertical 0.8s ease-out 0.25s forwards, tStructureGlow 3s ease-in-out infinite;
+        }
+
+        /* 主食和蛋白质子卡片 */
+        .tplate-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            position: relative;
+        }
+
+        .tplate-item-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e5e5;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .tplate-item-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tplate-item-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(24, 24, 24, 0.08);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: 1px solid rgba(24, 24, 24, 0.1);
+        }
+
+        .tplate-item-info h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1C1C1E;
+        }
+
+        .tplate-item-info p {
+            font-size: 10px;
+            color: #8E8E93;
+            font-weight: 500;
+            margin-top: 1px;
+        }
+
+        .tplate-item-percentage {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1C1C1E;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .tplate-item-bar {
+            width: 100%;
+            height: 4px;
+            background: #f5f5f5;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .tplate-item-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #181818 0%, #4A4A4A 100%);
+            border-radius: 999px;
+            transition: width 0.6s ease;
+        }
+
+        /* 数据指标网格 */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f0f0f0;
+        }
+
+        .metric-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1C1C1E;
+            line-height: 1;
+        }
+
+        .metric-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 4px;
+        }
+
+        .metric-desc {
+            font-size: 14px;
+            color: #8E8E93;
+            font-weight: 500;
+        }
+
+        .metric-unit {
+            font-size: 14px;
+            color: #8E8E93;
+            font-weight: 500;
+            margin-left: 4px;
+        }
+
+        .metric-change {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            color: #76FB91;
+        }
+
+        /* 体重卡片特殊样式 */
+        .weight-card {
+            background: #f5f5f5;
+            border-color: #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .weight-card .metric-icon-wrapper {
+            background: rgba(0, 0, 0, 0.1);
+            color: #666;
+        }
+
+        .weight-card .metric-value {
+            font-size: 24px;
+            color: #4B5563;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="status-bar-time">11:30</div>
+        <div class="status-bar-icons">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+
+    <!-- 页面头部 -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">今日</h1>
+            <p class="page-subtitle"><i class="fas fa-smile"></i> 今天也要元气满满！</p>
+        </div>
+    </div>
+
+    <!-- 页面内容 -->
+    <div class="page-container">
+
+        <!-- 数据指标网格 - 放在最上面 -->
+        <div class="metrics-grid">
+            <!-- 热量剩余 -->
+            <div class="metric-card">
+                <div class="metric-icon-wrapper" style="background: rgba(161, 219, 103, 0.15);">
+                    <i class="fas fa-fire" style="color: #6FC86B;"></i>
+                </div>
+                <div class="metric-value">1031<span class="metric-unit">kcal</span></div>
+                <div class="metric-label">剩余卡路里</div>
+                <div class="metric-desc">今日可摄入</div>
+            </div>
+
+            <!-- 体重 -->
+            <div class="metric-card weight-card">
+                <div class="metric-icon-wrapper">
+                    <i class="fas fa-weight"></i>
+                </div>
+                <div class="metric-value">52.4<span class="metric-unit">kg</span></div>
+                <div class="metric-desc" style="margin-top: 4px;">当前体重</div>
+                <div class="metric-change">
+                    <span>↓</span>
+                    <span>-0.4</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主动健康评分卡片 -->
+        <div class="card health-score-card">
+            <div class="health-score-header">
+                <div>
+                    <div class="card-title">主动健康评分</div>
+                    <div class="card-subtitle">综合健康指数</div>
+                </div>
+                <button class="expand-btn" id="expandBtn">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+
+            <!-- 环形进度图 -->
+            <div class="health-ring-wrapper">
+                <div class="health-ring-container">
+                    <svg class="health-ring-svg" width="140" height="140">
+                        <circle class="health-ring-bg" cx="70" cy="70" r="60"></circle>
+                        <circle class="health-ring-progress great" cx="70" cy="70" r="60" 
+                                stroke-dasharray="377" stroke-dashoffset="75" id="progressCircle"></circle>
+                    </svg>
+                    <div class="health-ring-center">
+                        <img src="../assets/images/Great表情.png" alt="健康评分" class="health-emoji" id="healthEmoji">
+                        <div class="health-ring-score" id="healthScore">8.0</div>
+                        <div class="health-ring-grade great" id="healthGrade">优秀</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 四个维度详情（可折叠） -->
+            <div class="dimensions-detail" id="dimensionsDetail">
+                <!-- 抗炎指数 -->
+                <div class="dimension-item">
+                    <div class="dimension-header">
+                        <div>
+                            <span class="dimension-label">抗炎指数</span>
+                            <span class="dimension-weight">权重 55%</span>
+                        </div>
+                        <div class="dimension-value">4.8 / 5.5</div>
+                    </div>
+                    <div class="dimension-bar">
+                        <div class="dimension-bar-fill" style="width: 87%; background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);"></div>
+                    </div>
+                </div>
+
+                <!-- 营养素指数 -->
+                <div class="dimension-item">
+                    <div class="dimension-header">
+                        <div>
+                            <span class="dimension-label">营养素指数</span>
+                            <span class="dimension-weight">权重 25%</span>
+                        </div>
+                        <div class="dimension-value">2.0 / 2.5</div>
+                    </div>
+                    <div class="dimension-bar">
+                        <div class="dimension-bar-fill" style="width: 80%; background: linear-gradient(135deg, #A1DB67 0%, #6FC86B 100%);"></div>
+                    </div>
+                </div>
+
+                <!-- 热量平衡 -->
+                <div class="dimension-item">
+                    <div class="dimension-header">
+                        <div>
+                            <span class="dimension-label">热量平衡</span>
+                            <span class="dimension-weight">权重 12%</span>
+                        </div>
+                        <div class="dimension-value">0.9 / 1.2</div>
+                    </div>
+                    <div class="dimension-bar">
+                        <div class="dimension-bar-fill" style="width: 75%; background: linear-gradient(135deg, #DFE686 0%, #A1DB67 100%);"></div>
+                    </div>
+                </div>
+
+                <!-- BMI风险评分 -->
+                <div class="dimension-item" style="margin-bottom: 0;">
+                    <div class="dimension-header">
+                        <div>
+                            <span class="dimension-label">BMI风险评分</span>
+                            <span class="dimension-weight">权重 8%</span>
+                        </div>
+                        <div class="dimension-value">0.3 / 0.8</div>
+                    </div>
+                    <div class="dimension-bar">
+                        <div class="dimension-bar-fill" style="width: 38%; background: linear-gradient(135deg, #DCE5B8 0%, #A1DB67 100%);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- T型餐盘结构 -->
+        <div class="card tplate-container" style="padding: 12px; position: relative;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <div class="card-title" style="margin: 0;">今日饮食结构</div>
+                <div style="display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(118, 251, 145, 0.12); border-radius: 999px;">
+                    <i class="fas fa-lightbulb" style="font-size: 11px; color: #181818;"></i>
+                    <span style="font-size: 11px; font-weight: 600; color: #181818;">T型餐盘</span>
+                </div>
+            </div>
+
+            <div style="position: relative;">
+                <!-- 蔬菜主卡片 -->
+                <div class="tplate-main-card">
+                    <div class="tplate-header">
+                        <div class="tplate-left">
+                            <div class="tplate-icon">
+                                <i class="fas fa-carrot" style="color: #76FB91;"></i>
+                            </div>
+                            <div class="tplate-info">
+                                <h3>蔬菜摄入</h3>
+                                <p>今日目标达成</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="tplate-percentage" id="veg-pct">50%</div>
+                            <div class="tplate-status" id="veg-grade">优秀</div>
+                        </div>
+                    </div>
+                    <div class="tplate-progress">
+                        <div class="tplate-progress-fill" id="veg-bar" style="width: 50%;"></div>
+                    </div>
+
+                    <!-- T型连接线 -->
+                    <div class="t-line-x"></div>
+                </div>
+
+                <!-- 垂直连接线 -->
+                <div class="t-line-y"></div>
+
+                <!-- 主食和蛋白质子卡片 -->
+                <div class="tplate-grid">
+                    <!-- 主食 -->
+                    <div class="tplate-item-card">
+                        <div class="tplate-item-header">
+                            <div class="tplate-item-icon">
+                                <i class="fas fa-bread-slice" style="color: #181818;"></i>
+                            </div>
+                            <div class="tplate-item-info">
+                                <h3>主食</h3>
+                                <p>碳水化合物</p>
+                            </div>
+                        </div>
+                        <div class="tplate-item-percentage" id="carb-pct">25%</div>
+                        <div class="tplate-item-bar">
+                            <div class="tplate-item-bar-fill" id="carb-bar" style="width: 25%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- 蛋白质 -->
+                    <div class="tplate-item-card">
+                        <div class="tplate-item-header">
+                            <div class="tplate-item-icon">
+                                <i class="fas fa-drumstick-bite" style="color: #181818;"></i>
+                            </div>
+                            <div class="tplate-item-info">
+                                <h3>蛋白质</h3>
+                                <p>肉类蛋奶</p>
+                            </div>
+                        </div>
+                        <div class="tplate-item-percentage" id="pro-pct">25%</div>
+                        <div class="tplate-item-bar">
+                            <div class="tplate-item-bar-fill" id="pro-bar" style="width: 25%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="tab-bar">
+        <a href="home.html" class="tab-item active">
+            <i class="fas fa-home"></i>
+            <span>今日</span>
+        </a>
+        <a href="plan.html" class="tab-item">
+            <i class="far fa-calendar-alt"></i>
+            <span>计划</span>
+        </a>
+        <a href="wiki.html" class="tab-item">
+            <i class="fas fa-book-open"></i>
+            <span>百科</span>
+        </a>
+        <a href="profile.html" class="tab-item">
+            <i class="far fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+
+    <script>
+        // 展开/收起四个维度详情
+        const expandBtn = document.getElementById('expandBtn');
+        const dimensionsDetail = document.getElementById('dimensionsDetail');
+
+        expandBtn.addEventListener('click', function() {
+            this.classList.toggle('expanded');
+            dimensionsDetail.classList.toggle('expanded');
+        });
+
+        // 根据分数获取等级信息
+        function getScoreLevel(score) {
+            if (score < 2) {
+                return {
+                    level: 'bad',
+                    emoji: '../assets/images/Bad表情.png',
+                    text: '需改善',
+                    color: '#ef4444'
+                };
+            } else if (score < 4) {
+                return {
+                    level: 'no-great',
+                    emoji: '../assets/images/NoGreat表情.png',
+                    text: '待提升',
+                    color: '#f97316'
+                };
+            } else if (score < 6) {
+                return {
+                    level: 'okay',
+                    emoji: '../assets/images/Okay表情.png',
+                    text: '还不错',
+                    color: '#eab308'
+                };
+            } else if (score < 8) {
+                return {
+                    level: 'good',
+                    emoji: '../assets/images/Good表情.png',
+                    text: '良好',
+                    color: '#A1DB67'
+                };
+            } else {
+                return {
+                    level: 'great',
+                    emoji: '../assets/images/Great表情.png',
+                    text: '优秀',
+                    color: '#6FC86B'
+                };
+            }
+        }
+
+        // 更新健康评分显示
+        function updateHealthScore(score) {
+            const levelInfo = getScoreLevel(score);
+            const circle = document.getElementById('progressCircle');
+            const emoji = document.getElementById('healthEmoji');
+            const scoreEl = document.getElementById('healthScore');
+            const gradeEl = document.getElementById('healthGrade');
+
+            // 更新表情
+            emoji.src = levelInfo.emoji;
+            emoji.alt = levelInfo.text;
+
+            // 更新分数
+            scoreEl.textContent = score.toFixed(1);
+
+            // 更新等级文字和样式
+            gradeEl.textContent = levelInfo.text;
+            gradeEl.className = 'health-ring-grade ' + levelInfo.level;
+
+            // 更新环形进度条颜色
+            circle.className = 'health-ring-progress ' + levelInfo.level;
+
+            // 更新环形进度
+            const maxScore = 10;
+            const percentage = score / maxScore;
+            const circumference = 2 * Math.PI * 60;
+            const offset = circumference * (1 - percentage);
+            
+            setTimeout(() => {
+                circle.style.strokeDashoffset = offset;
+            }, 100);
+        }
+
+        // 动画初始化
+        window.addEventListener('load', function() {
+            // 从localStorage读取或使用默认分数
+            const score = parseFloat(localStorage.getItem('healthScore')) || 8.0;
+            
+            // 更新健康评分显示
+            updateHealthScore(score);
+
+            // T型餐盘数据计算（从localStorage读取或使用默认值）
+            function clamp(v) {
+                let n = Math.round(Number(v) || 0);
+                return Math.min(100, Math.max(0, n));
+            }
+
+            let veg = clamp(localStorage.getItem('plateVeg') || 50);
+            let pro = clamp(localStorage.getItem('plateProtein') || 25);
+            let carb = clamp(localStorage.getItem('plateCarb') || 25);
+
+            // 归一化到100
+            const sum = veg + pro + carb;
+            if (sum > 0) {
+                veg = Math.round(veg / sum * 100);
+                pro = Math.round(pro / sum * 100);
+                carb = Math.round(carb / sum * 100);
+                const diff = 100 - (veg + pro + carb);
+                if (diff !== 0) {
+                    veg += diff; // 将误差加到蔬菜
+                }
+            }
+
+            // 渲染数据
+            document.getElementById('veg-pct').textContent = veg + '%';
+            document.getElementById('veg-bar').style.width = veg + '%';
+            document.getElementById('pro-pct').textContent = pro + '%';
+            document.getElementById('pro-bar').style.width = pro + '%';
+            document.getElementById('carb-pct').textContent = carb + '%';
+            document.getElementById('carb-bar').style.width = carb + '%';
+
+            // 评价文案
+            const grade = veg >= 50 ? '优秀' : (veg >= 40 ? '良好' : (veg >= 30 ? '一般' : '待提升'));
+            document.getElementById('veg-grade').textContent = grade;
+        });
+    </script>
+
+</body>
+
+</html>
